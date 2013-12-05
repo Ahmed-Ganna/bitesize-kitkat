@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shinobicontrols.transitions.data.StoryContent;
@@ -49,9 +50,10 @@ public class StoryDetailFragment extends Fragment {
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_story_detail, container, false);
 
-        // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.story_detail)).setText(getResources().getText(mItem.contentResourceId));
+            ((TextView) rootView.findViewById(R.id.story_content)).setText(getResources().getText(mItem.contentResourceId));
+            ((TextView) rootView.findViewById(R.id.story_title)).setText(mItem.title);
+            ((ImageView) rootView.findViewById(R.id.story_image)).setImageResource(mItem.imageResourceId);
         }
 
         return rootView;
