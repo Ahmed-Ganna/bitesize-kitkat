@@ -42,7 +42,10 @@ public class StoryListActivity extends FragmentActivity
         // In single-pane mode, simply start the detail activity
         // for the selected item ID.
         Intent detailIntent = new Intent(this, StoryDetailActivity.class);
-        detailIntent.putExtra(StoryDetailFragment.ARG_ITEM_ID, id);
+        String name = StoryDetailFragment.ARG_STORY_ID;
+
+
+        detailIntent.putExtra(name, id);
         startActivity(detailIntent);
 
     }
