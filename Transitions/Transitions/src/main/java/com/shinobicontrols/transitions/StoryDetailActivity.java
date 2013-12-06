@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
 import android.transition.Scene;
 import android.transition.TransitionManager;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -15,20 +16,19 @@ import android.widget.TextView;
 
 import com.shinobicontrols.transitions.data.StoryContent;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * An activity representing a single Story detail screen. This
  * activity is only used on handset devices. On tablet-size devices,
  * item details are presented side-by-side with a list of items
  * in a {@link StoryListActivity}.
- * <p>
- * This activity is mostly just a 'shell' activity containing nothing
- * more than a {@link StoryDetailFragment}.
  */
 public class StoryDetailActivity extends FragmentActivity {
 
-    private ViewGroup container;
-    private Scene current;
-    private Scene other;
+    private List<Scene> sceneList;
 
     /**
      * The fragment argument representing the item ID that this fragment
@@ -54,63 +54,62 @@ public class StoryDetailActivity extends FragmentActivity {
         }
 
         // Get hold of some relevant content
-        container = (ViewGroup)findViewById(R.id.container);
+        ViewGroup container = (ViewGroup)findViewById(R.id.container);
 
-        final ViewGroup scene0group = (ViewGroup)getLayoutInflater().inflate(R.layout.content_scene_00, container, false);
-        addContentToViewGroup(scene0group);
-        current = new Scene(container, scene0group);
+        // What are the layouts we should be able to transition between
+        List<Integer> sceneLayouts = Arrays.asList(R.layout.content_scene_00,
+                                                   R.layout.content_scene_01,
+                                                   R.layout.content_scene_02);
+        // Create the scenes
+        sceneList = new ArrayList<Scene>();
+        LayoutInflater layoutInflater = getLayoutInflater();
+        for(int layout : sceneLayouts) {
+            final ViewGroup sceneViewGroup = (ViewGroup)layoutInflater.inflate(layout, container, false);
+            addContentToViewGroup(sceneViewGroup);
+            sceneList.add(new Scene(container, sceneViewGroup));
+        }
 
-        final ViewGroup scene1group = (ViewGroup)getLayoutInflater().inflate(R.layout.content_scene_01, container, false);
-        addContentToViewGroup(scene1group);
-        other = new Scene(container, scene1group);
 
         // Show the Up button in the action bar.
         final ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
+        if(actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
-        // Specify we want some tabs
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            // Specify we want some tabs
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        // Create a listener to cope with tab changes
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            @Override
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                Scene nextScene;
-                switch (tab.getPosition()) {
-                    case 0:
-                        nextScene = current;
-                        break;
-                    case 1:
-                        nextScene = other;
-                        break;
-                    default:
-                        nextScene = current;
-                        break;
+            // Create a listener to cope with tab changes
+            ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+                @Override
+                public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                    // If there's a scene for this tab index, then transition to it
+                    if(tab.getPosition() <= sceneList.size()) {
+                        TransitionManager.go(sceneList.get(tab.getPosition()));
+                    }
                 }
 
-                TransitionManager.go(nextScene);
-            }
+                @Override
+                public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+                    // Can ignore this event
+                }
 
-            @Override
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // Can ignore this event
-            }
+                @Override
+                public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+                    // Can ignore this event
+                }
+            };
 
-            @Override
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-                // Can ignore this event
+            // Add some tabs
+            for (int i=0; i<sceneList.size(); i++) {
+                actionBar.addTab(
+                        actionBar.newTab()
+                        .setText("Scene " + i)
+                        .setTabListener(tabListener));
             }
-        };
-
-        // Add some tabs
-        for (int i=0; i<2; i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                    .setText("Scene " + i)
-                    .setTabListener(tabListener));
         }
 
-        current.enter();
+        // Load the first scene
+        sceneList.get(0).enter();
     }
 
     @Override
@@ -130,15 +129,26 @@ public class StoryDetailActivity extends FragmentActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void addContentToViewGroup(ViewGroup vg)
+    /**
+     * Given a view group, then populate with the content from the node which has been loaded
+     * into mItem
+     * @param viewGroup The ViewGroup to populate with the content
+     */
+    private void addContentToViewGroup(ViewGroup viewGroup)
     {
         if (mItem != null) {
-            ((TextView) vg.findViewById(R.id.story_content)).setText(getResources().getText(mItem.contentResourceId));
-            TextView titleTextView = (TextView)vg.findViewById(R.id.story_title);
+            TextView contentTextView = (TextView) viewGroup.findViewById(R.id.story_content);
+            if(contentTextView != null) {
+                contentTextView.setText(getResources().getText(mItem.contentResourceId));
+            }
+            TextView titleTextView = (TextView) viewGroup.findViewById(R.id.story_title);
             if(titleTextView != null) {
                 titleTextView.setText(mItem.title);
             }
-            ((ImageView) vg.findViewById(R.id.story_image)).setImageResource(mItem.imageResourceId);
+            ImageView imageView = (ImageView) viewGroup.findViewById(R.id.story_image);
+            if(imageView != null) {
+                imageView.setImageResource(mItem.imageResourceId);
+            }
         }
     }
 }
