@@ -1,10 +1,19 @@
 package com.shinobicontrols.transitions;
 
+import android.app.ActionBar;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.transition.Scene;
+import android.transition.TransitionManager;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.shinobicontrols.transitions.data.StoryContent;
 
 /**
  * An activity representing a single Story detail screen. This
@@ -17,37 +26,91 @@ import android.view.MenuItem;
  */
 public class StoryDetailActivity extends FragmentActivity {
 
+    private ViewGroup container;
+    private Scene current;
+    private Scene other;
+
+    /**
+     * The fragment argument representing the item ID that this fragment
+     * represents.
+     */
+    public static final String ARG_STORY_ID = "story_id";
+
+    /**
+     * The story item this fragment is presenting.
+     */
+    private StoryContent.StoryItem mItem;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_story_detail);
 
-        // Show the Up button in the action bar.
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-
-        // savedInstanceState is non-null when there is fragment state
-        // saved from previous configurations of this activity
-        // (e.g. when rotating the screen from portrait to landscape).
-        // In this case, the fragment will automatically be re-added
-        // to its container so we don't need to manually add it.
-        // For more information, see the Fragments API guide at:
-        //
-        // http://developer.android.com/guide/components/fragments.html
-        //
         if (savedInstanceState == null) {
-            // Create the detail fragment and add it to the activity
-            // using a fragment transaction.
-            Bundle arguments = new Bundle();
+            // Load the data from the intent on first pass
             Intent intent = getIntent();
-            String story_id = intent.getStringExtra(StoryDetailFragment.ARG_STORY_ID);
-            arguments.putString(StoryDetailFragment.ARG_STORY_ID,
-                    story_id);
-            StoryDetailFragment fragment = new StoryDetailFragment();
-            fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.story_detail_container, fragment)
-                    .commit();
+            String story_id = intent.getStringExtra(ARG_STORY_ID);
+            mItem = StoryContent.STORY_MAP.get(story_id);
         }
+
+        // Get hold of some relevant content
+        container = (ViewGroup)findViewById(R.id.container);
+
+        final ViewGroup scene0group = (ViewGroup)getLayoutInflater().inflate(R.layout.content_scene_00, container, false);
+        addContentToViewGroup(scene0group);
+        current = new Scene(container, scene0group);
+
+        final ViewGroup scene1group = (ViewGroup)getLayoutInflater().inflate(R.layout.content_scene_01, container, false);
+        addContentToViewGroup(scene1group);
+        other = new Scene(container, scene1group);
+
+        // Show the Up button in the action bar.
+        final ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        // Specify we want some tabs
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        // Create a listener to cope with tab changes
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+            @Override
+            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                Scene nextScene;
+                switch (tab.getPosition()) {
+                    case 0:
+                        nextScene = current;
+                        break;
+                    case 1:
+                        nextScene = other;
+                        break;
+                    default:
+                        nextScene = current;
+                        break;
+                }
+
+                TransitionManager.go(nextScene);
+            }
+
+            @Override
+            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+                // Can ignore this event
+            }
+
+            @Override
+            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+                // Can ignore this event
+            }
+        };
+
+        // Add some tabs
+        for (int i=0; i<2; i++) {
+            actionBar.addTab(
+                    actionBar.newTab()
+                    .setText("Scene " + i)
+                    .setTabListener(tabListener));
+        }
+
+        current.enter();
     }
 
     @Override
@@ -65,5 +128,17 @@ public class StoryDetailActivity extends FragmentActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void addContentToViewGroup(ViewGroup vg)
+    {
+        if (mItem != null) {
+            ((TextView) vg.findViewById(R.id.story_content)).setText(getResources().getText(mItem.contentResourceId));
+            TextView titleTextView = (TextView)vg.findViewById(R.id.story_title);
+            if(titleTextView != null) {
+                titleTextView.setText(mItem.title);
+            }
+            ((ImageView) vg.findViewById(R.id.story_image)).setImageResource(mItem.imageResourceId);
+        }
     }
 }
