@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by sdavies on 05/12/2013.
+ * A pseudo data-store for the story content to display in the app
  */
 public class StoryContent {
 
@@ -18,7 +18,9 @@ public class StoryContent {
      */
     public static List<StoryItem> STORIES = new ArrayList<StoryItem>();
 
-
+    /**
+     * Map of stories to refernce the story items by ID
+     */
     public static Map<String, StoryItem> STORY_MAP = new HashMap<String, StoryItem>();
 
     /**
