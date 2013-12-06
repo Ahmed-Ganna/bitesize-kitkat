@@ -2,6 +2,7 @@ package com.shinobicontrols.transitions;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.transition.Scene;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,11 @@ public class StoryDetailFragment extends Fragment {
      */
     private StoryContent.StoryItem mItem;
 
+
+    private ViewGroup container;
+    private Scene current;
+    private Scene other;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -50,11 +56,19 @@ public class StoryDetailFragment extends Fragment {
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_story_detail, container, false);
 
+        container = (ViewGroup)rootView.findViewById(R.id.container);
+
+        current = Scene.getSceneForLayout(container, R.layout.content_scene_00, getActivity());
+
+        //container.addView(current);
+
         if (mItem != null) {
             ((TextView) rootView.findViewById(R.id.story_content)).setText(getResources().getText(mItem.contentResourceId));
             ((TextView) rootView.findViewById(R.id.story_title)).setText(mItem.title);
             ((ImageView) rootView.findViewById(R.id.story_image)).setImageResource(mItem.imageResourceId);
         }
+
+        current.enter();
 
         return rootView;
     }
