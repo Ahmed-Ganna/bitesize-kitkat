@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
+import com.shinobicontrols.transitions.data.StoryContent;
+
 
 /**
  * An activity representing a list of Stories. This activity
@@ -12,10 +14,6 @@ import android.support.v4.app.FragmentActivity;
  * lead to a {@link StoryDetailActivity} representing
  * item details. On tablets, the activity presents the list of items and
  * item details side-by-side using two vertical panes.
- * <p>
- * The activity makes heavy use of fragments. The list of items is a
- * {@link StoryListFragment} and the item details
- * (if present) is a {@link StoryDetailFragment}.
  * <p>
  * This activity also implements the required
  * {@link StoryListFragment.Callbacks} interface
@@ -29,7 +27,6 @@ public class StoryListActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_story_list);
 
-        // TODO: If exposing deep links into your app, handle intents here.
     }
 
     /**
@@ -42,8 +39,7 @@ public class StoryListActivity extends FragmentActivity
         // In single-pane mode, simply start the detail activity
         // for the selected item ID.
         Intent detailIntent = new Intent(this, StoryDetailActivity.class);
-        String name = StoryDetailFragment.ARG_STORY_ID;
-
+        String name = StoryDetailActivity.ARG_STORY_ID;
 
         detailIntent.putExtra(name, id);
         startActivity(detailIntent);
