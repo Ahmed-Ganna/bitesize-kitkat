@@ -1,8 +1,18 @@
 package com.shinobicontrols.fullimmersion;
 
+import android.graphics.Color;
+import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
-public class ImmersiveActivity extends AbstractFullScreenLayoutActivity {
+public class ImmersiveActivity extends AbstractFullScreenLayoutActivity implements
+    View.OnSystemUiVisibilityChangeListener {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getDecorView().setOnSystemUiVisibilityChangeListener(this);
+    }
 
     @Override
     protected int getLayoutID() {
@@ -29,6 +39,16 @@ public class ImmersiveActivity extends AbstractFullScreenLayoutActivity {
         getDecorView().setSystemUiVisibility(newVisibility);
     }
 
+    @Override
+    public void onSystemUiVisibilityChange(int visibility) {
+        Button immersiveButton = (Button)findViewById(R.id.enableImmersiveButton);
+        if((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+            // Hide button
+            immersiveButton.setVisibility(View.INVISIBLE);
+        } else {
+            immersiveButton.setVisibility(View.VISIBLE);
+        }
+    }
 
     public void immersiveButtonClickHandler(View view) {
         enableFullScreen(true);
