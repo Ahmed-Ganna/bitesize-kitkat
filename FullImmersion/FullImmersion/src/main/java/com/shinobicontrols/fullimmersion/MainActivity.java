@@ -1,31 +1,36 @@
 package com.shinobicontrols.fullimmersion;
 
-import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class MainActivity extends ListActivity {
 
-    private static final String[] items = {"hi", "does", "this", "work"};
+    private List<ActivityInstantiator> activityList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setListAdapter(new ArrayAdapter<String>(this,
+
+        ActivityInstantiator[] activityArray = {
+                new ActivityInstantiator("Lean Back", LeanBackActivity.class),
+                new ActivityInstantiator("Immersive", ImmersiveActivity.class)
+        };
+        activityList = Arrays.asList(activityArray);
+
+        setListAdapter(new ArrayAdapter<ActivityInstantiator>(this,
                 android.R.layout.simple_list_item_1,
-                items));
+                activityList));
 
     }
 
@@ -52,7 +57,8 @@ public class MainActivity extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Intent leanBackIntent = new Intent(this, LeanBackActivity.class);
-        startActivity(leanBackIntent);
+        ActivityInstantiator activityInstantiator = activityList.get(position);
+        Intent intent = activityInstantiator.createIntent(this);
+        startActivity(intent);
     }
 }

@@ -27,6 +27,11 @@
             android:name=".LeanBackActivity"
             android:label="LeanBack"
             />
+
+        <activity
+            android:name=".ImmersiveActivity"
+            android:label="Immersive"
+            />
     </application>
 
 </manifest>
