@@ -32,6 +32,11 @@
             android:name=".ImmersiveActivity"
             android:label="Immersive"
             />
+
+        <activity
+            android:name=".ImmersiveStickyActivity"
+            android:label="ImmersiveSticky"
+            />
     </application>
 
 </manifest>

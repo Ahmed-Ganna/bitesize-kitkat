@@ -24,7 +24,8 @@ public class MainActivity extends ListActivity {
 
         ActivityInstantiator[] activityArray = {
                 new ActivityInstantiator("Lean Back", LeanBackActivity.class),
-                new ActivityInstantiator("Immersive", ImmersiveActivity.class)
+                new ActivityInstantiator("Immersive", ImmersiveActivity.class),
+                new ActivityInstantiator("Immersive Sticky", ImmersiveStickyActivity.class)
         };
         activityList = Arrays.asList(activityArray);
 
