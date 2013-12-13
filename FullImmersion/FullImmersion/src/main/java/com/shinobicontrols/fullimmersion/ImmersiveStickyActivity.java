@@ -2,9 +2,6 @@ package com.shinobicontrols.fullimmersion;
 
 import android.view.View;
 
-/**
- * Created by sdavies on 12/12/2013.
- */
 public class ImmersiveStickyActivity extends AbstractFullScreenLayoutActivity {
     @Override
     protected int getMainViewID() {

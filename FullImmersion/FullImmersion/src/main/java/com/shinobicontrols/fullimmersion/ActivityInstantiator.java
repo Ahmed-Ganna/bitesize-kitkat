@@ -3,9 +3,6 @@ package com.shinobicontrols.fullimmersion;
 import android.content.Context;
 import android.content.Intent;
 
-/**
- * Created by sdavies on 12/12/2013.
- */
 public class ActivityInstantiator {
     private Class<?> mActivityClass;
     private String mName;
