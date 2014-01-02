@@ -3,7 +3,10 @@ package com.shinobicontrols.texteditor;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,6 +15,9 @@ import android.view.ViewGroup;
 import android.os.Build;
 
 public class EditorActivity extends Activity {
+
+    public static final int READ_REQUEST_CODE = 135;
+    private static final String TAG = "TextEditor";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +48,30 @@ public class EditorActivity extends Activity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_open) {
+            Intent openFileIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+
+            // Only want those items which can be opened
+            openFileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+
+            // Only want to see files of the plain text mime type
+            openFileIntent.setType("text/plain");
+
+            startActivityForResult(openFileIntent, READ_REQUEST_CODE);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            // Let's see the URI
+            Uri uri = null;
+            if (data != null) {
+                uri = data.getData();
+                Log.i(TAG, "URI: " + uri.toString());
+            }
+        }
     }
 
     /**

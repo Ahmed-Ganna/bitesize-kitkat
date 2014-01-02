@@ -1,6 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.shinobicontrols.texteditor.EditorActivity" >
+
+    <!-- Open, should appear as an action button -->
+    <item android:id="@+id/action_open"
+        android:icon="@drawable/ic_action_cloud"
+        android:title="@string/action_open"
+        android:showAsAction="ifRoom" />
     
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
