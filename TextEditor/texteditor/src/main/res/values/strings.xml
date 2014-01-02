@@ -6,4 +6,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_open">Open</string>
 
+    <string name="edit_text_save">Save</string>
+    <string name="edit_text_revert">Revert</string>
+
 </resources>
