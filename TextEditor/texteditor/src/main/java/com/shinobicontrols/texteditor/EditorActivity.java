@@ -8,7 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class EditorActivity extends Activity implements TextEditorFragmentDelegate {
+public class EditorActivity extends Activity implements TextEditorFragment.OnTextSavedListener {
 
     public static final int READ_REQUEST_CODE = 135;
     private static final String TAG = "TextEditor";
@@ -21,7 +21,7 @@ public class EditorActivity extends Activity implements TextEditorFragmentDelega
         setContentView(R.layout.activity_editor);
 
         if (savedInstanceState == null) {
-            textEditorFragment = new TextEditorFragment(this);
+            textEditorFragment = new TextEditorFragment();
             getFragmentManager().beginTransaction()
                     .add(R.id.container, textEditorFragment)
                     .commit();

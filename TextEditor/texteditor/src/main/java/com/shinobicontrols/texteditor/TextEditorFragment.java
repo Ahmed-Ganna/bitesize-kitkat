@@ -1,8 +1,8 @@
 package com.shinobicontrols.texteditor;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +14,21 @@ import android.widget.EditText;
  */
 public class TextEditorFragment extends Fragment implements AsyncStringReaderCompletionHandler, AsyncStringWriterCompletionHandler {
 
-    private TextEditorFragmentDelegate mDelegate;
-    public TextEditorFragment(TextEditorFragmentDelegate delegate) {
-        mDelegate = delegate;
+    // Container activity must implement this
+    public static interface OnTextSavedListener {
+        public void SaveText(String text);
+    }
+
+    private OnTextSavedListener mListener;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (OnTextSavedListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement OnTextSavedListener");
+        }
     }
 
     private String mText;
@@ -35,7 +47,7 @@ public class TextEditorFragment extends Fragment implements AsyncStringReaderCom
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mDelegate.SaveText(getEditTextContent());
+                mListener.SaveText(getEditTextContent());
             }
         });
 
