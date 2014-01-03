@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,7 +22,22 @@ public class TextEditorFragment extends Fragment implements AsyncStringReaderCom
         public void SaveText(String text);
     }
 
+    public TextEditorFragment() {
+    }
+
     private OnTextSavedListener mListener;
+
+    private String mText;
+    public void setText(String mOriginalText) {
+        this.mText = mOriginalText;
+        UpdateTextView();
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -31,36 +49,32 @@ public class TextEditorFragment extends Fragment implements AsyncStringReaderCom
         }
     }
 
-    private String mText;
-    public void setText(String mOriginalText) {
-        this.mText = mOriginalText;
-        UpdateTextView();
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_editor, container, false);
 
-        // Wire up the click handling
-        Button saveButton = (Button)rootView.findViewById(R.id.editTextSaveButton);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.SaveText(getEditTextContent());
-            }
-        });
-
-        Button revertButton = (Button)rootView.findViewById(R.id.editTextRevertButton);
-        revertButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UpdateTextView();
-            }
-        });
-
         // Send the view back
         return rootView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.editor_fragment, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.edit_text_revert) {
+            UpdateTextView();
+            return true;
+        } else if(item.getItemId() == R.id.edit_text_save) {
+            if(mText != null) {
+                mListener.SaveText(getEditTextContent());
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void UpdateTextView() {
