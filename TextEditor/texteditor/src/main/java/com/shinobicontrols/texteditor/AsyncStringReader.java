@@ -32,6 +32,7 @@ public class AsyncStringReader extends AsyncTask<Uri, Void, String> {
                 String line;
                 while((line = reader.readLine()) != null) {
                     stringBuilder.append(line);
+                    stringBuilder.append("\n");
                 }
                 inputStream.close();
                 resultString = stringBuilder.toString();

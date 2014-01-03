@@ -41,7 +41,8 @@
             android:inputType="textMultiLine"
             android:ems="10"
             android:id="@+id/editText"
-            android:layout_gravity="top" />
+            android:editable="true"
+            android:gravity="top" />
 
     </LinearLayout>
 </RelativeLayout>
