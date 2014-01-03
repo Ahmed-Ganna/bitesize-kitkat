@@ -1,31 +1,19 @@
 package com.shinobicontrols.texteditor;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-public class EditorActivity extends Activity {
+public class EditorActivity extends Activity implements TextEditorFragmentDelegate {
 
     public static final int READ_REQUEST_CODE = 135;
     private static final String TAG = "TextEditor";
     private TextEditorFragment textEditorFragment;
+    private Uri currentOpenFileUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +21,12 @@ public class EditorActivity extends Activity {
         setContentView(R.layout.activity_editor);
 
         if (savedInstanceState == null) {
-            textEditorFragment = new TextEditorFragment();
+            textEditorFragment = new TextEditorFragment(this);
             getFragmentManager().beginTransaction()
                     .add(R.id.container, textEditorFragment)
                     .commit();
         }
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -75,65 +62,22 @@ public class EditorActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if(requestCode == READ_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             // Let's see the URI
-            Uri uri = null;
+            currentOpenFileUri = null;
             if (data != null) {
-                uri = data.getData();
-                Log.i(TAG, "URI: " + uri.toString());
+                currentOpenFileUri = data.getData();
+                Log.i(TAG, "URI: " + currentOpenFileUri.toString());
                 // Get hold of the content of the file
                 AsyncStringReader stringReader = new AsyncStringReader(getContentResolver(), textEditorFragment);
-                stringReader.execute(uri);
+                stringReader.execute(currentOpenFileUri);
             }
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class TextEditorFragment extends Fragment implements AsyncStringReaderCompletionHandler {
-
-        public TextEditorFragment() {
-        }
-
-        public String getText() {
-            return mText;
-        }
-
-        public void setText(String mOriginalText) {
-            this.mText = mOriginalText;
-
-            // Update the text view
-            EditText textView = (EditText)getView().findViewById(R.id.editText);
-            textView.setText(this.mText);
-        }
-
-        private String mText;
-
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_editor, container, false);
-
-            // Wire up the click handling
-            Button saveButton = (Button)rootView.findViewById(R.id.editTextSaveButton);
-            saveButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.i(TAG, "Save button pressed");
-                }
-            });
-
-            Button revertButton = (Button)rootView.findViewById(R.id.editTextRevertButton);
-            revertButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.i(TAG, "Revert button pressed");
-                }
-            });
-
-            // Send the view back
-            return rootView;
-        }
+    @Override
+    public void SaveText(String text) {
+        Log.i(TAG, "Save the updated text");
+        AsyncStringWriter stringWriter = new AsyncStringWriter(getContentResolver(), textEditorFragment);
+        AsyncStringWriterParams params = new AsyncStringWriterParams(currentOpenFileUri, text);
+        stringWriter.execute(params);
     }
-
 }

@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,18 +30,13 @@ public class AsyncStringReader extends AsyncTask<Uri, Void, String> {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
-                try {
-                    while((line = reader.readLine()) != null) {
-                        stringBuilder.append(line);
-                    }
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                while((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
                 }
-
+                inputStream.close();
                 resultString = stringBuilder.toString();
             }
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return resultString;
