@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.shinobicontrols.messageme" >
 
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -24,6 +27,17 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.shinobicontrols.messageme.ConversationListActivity" />
         </activity>
+
+        <receiver
+            android:name="com.shinobicontrols.messageme.receivers.SMSBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            >
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
