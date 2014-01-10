@@ -7,7 +7,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.shinobicontrols.messageme.dummy.DummyContent;
+import com.shinobicontrols.messageme.models.Conversation;
+import com.shinobicontrols.messageme.models.DataProvider;
 
 /**
  * A list fragment representing a list of Conversations. This fragment
@@ -70,12 +71,11 @@ public class ConversationListFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // TODO: replace with a real list adapter.
-        setListAdapter(new ArrayAdapter<DummyContent.DummyItem>(
+        setListAdapter(new ArrayAdapter<Conversation>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                DummyContent.ITEMS));
+                DataProvider.getInstance().getConversations()));
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ConversationListFragment extends ListFragment {
 
         // Notify the active callbacks interface (the activity, if the
         // fragment is attached to one) that an item has been selected.
-        mCallbacks.onItemSelected(DummyContent.ITEMS.get(position).id);
+        mCallbacks.onItemSelected(DataProvider.getInstance().getConversations().get(position).getSender());
     }
 
     @Override

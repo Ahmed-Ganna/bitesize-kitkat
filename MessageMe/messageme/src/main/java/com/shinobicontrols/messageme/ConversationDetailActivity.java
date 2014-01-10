@@ -42,7 +42,7 @@ public class ConversationDetailActivity extends FragmentActivity {
                     getIntent().getStringExtra(ConversationDetailFragment.ARG_ITEM_ID));
             ConversationDetailFragment fragment = new ConversationDetailFragment();
             fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
                     .add(R.id.conversation_detail_container, fragment)
                     .commit();
         }

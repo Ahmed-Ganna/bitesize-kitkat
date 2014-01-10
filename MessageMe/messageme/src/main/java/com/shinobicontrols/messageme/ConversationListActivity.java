@@ -66,7 +66,7 @@ public class ConversationListActivity extends FragmentActivity
             arguments.putString(ConversationDetailFragment.ARG_ITEM_ID, id);
             ConversationDetailFragment fragment = new ConversationDetailFragment();
             fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction()
+            getFragmentManager().beginTransaction()
                     .replace(R.id.conversation_detail_container, fragment)
                     .commit();
 
