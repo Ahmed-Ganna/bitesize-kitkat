@@ -10,6 +10,9 @@ import android.widget.ListView;
 import com.shinobicontrols.messageme.models.Conversation;
 import com.shinobicontrols.messageme.models.DataProvider;
 
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * A list fragment representing a list of Conversations. This fragment
  * also supports tablet devices by allowing list items to be given an
@@ -19,7 +22,7 @@ import com.shinobicontrols.messageme.models.DataProvider;
  * Activities containing this fragment MUST implement the {@link Callbacks}
  * interface.
  */
-public class ConversationListFragment extends ListFragment {
+public class ConversationListFragment extends ListFragment implements Observer {
 
     /**
      * The serialization (saved instance state) Bundle key representing the
@@ -67,15 +70,30 @@ public class ConversationListFragment extends ListFragment {
     public ConversationListFragment() {
     }
 
+    private ArrayAdapter<Conversation> conversationArrayAdapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setListAdapter(new ArrayAdapter<Conversation>(
+        conversationArrayAdapter = new ArrayAdapter<Conversation>(
                 getActivity(),
                 android.R.layout.simple_list_item_activated_1,
                 android.R.id.text1,
-                DataProvider.getInstance().getConversations()));
+                DataProvider.getInstance().getConversations());
+        setListAdapter(conversationArrayAdapter);
+
+        // Listen for changes in the data provider
+        DataProvider.getInstance().addObserver(this);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        // Remove ourself as an observer on the data provider
+        DataProvider.getInstance().deleteObserver(this);
+
+        super.onDestroy();
     }
 
     @Override
@@ -148,4 +166,16 @@ public class ConversationListFragment extends ListFragment {
 
         mActivatedPosition = position;
     }
+
+    /**
+     * Implement observer interface
+     * @param observable
+     * @param data
+     */
+    @Override
+    public void update(Observable observable, Object data) {
+        // If the data adapter has changed then we need to reload the list dataadapter
+        conversationArrayAdapter.notifyDataSetChanged();
+    }
+
 }

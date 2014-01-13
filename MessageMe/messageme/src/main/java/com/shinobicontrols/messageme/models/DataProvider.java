@@ -1,26 +1,29 @@
 package com.shinobicontrols.messageme.models;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 
 /**
  * Created by sdavies on 09/01/2014.
  */
-public class DataProvider {
+public class DataProvider extends Observable {
     private static DataProvider ourInstance = new DataProvider();
 
     public static DataProvider getInstance() {
         return ourInstance;
     }
 
-    private Map<String, Conversation> conversations;
+    private Map<String, Conversation> conversationMap;
+    private List<Conversation> conversationList;
 
     private DataProvider() {
         // Create the store
-        conversations = new HashMap<String, Conversation>();
+        conversationMap = new HashMap<String, Conversation>();
+        conversationList = new ArrayList<Conversation>();
 
         // Create some sample data
         addMessage(new Message("content1", "sender1", "recipient", new Date()));
@@ -35,22 +38,26 @@ public class DataProvider {
     }
 
     public void addMessage(Message message) {
-        if(conversations.containsKey(message.getSender())) {
+        if(conversationMap.containsKey(message.getSender())) {
             // Can add the message to an existing conversation
-            conversations.get(message.getSender()).addMessage(message);
+            conversationMap.get(message.getSender()).addMessage(message);
         } else {
             // Need to create a new conversation
             Conversation conversation = new Conversation(message.getSender());
             conversation.addMessage(message);
-            conversations.put(message.getSender(), conversation);
+            conversationMap.put(message.getSender(), conversation);
+            conversationList.add(conversation);
         }
+        // Ensure that everything gets updated
+        setChanged();
+        notifyObservers();
     }
 
-    public ArrayList<Conversation> getConversations() {
-        return new ArrayList<Conversation>(conversations.values());
+    public List<Conversation> getConversations() {
+        return conversationList;
     }
 
     public Map<String, Conversation> getConversationMap() {
-        return conversations;
+        return conversationMap;
     }
 }

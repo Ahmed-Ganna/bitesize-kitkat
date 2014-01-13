@@ -9,13 +9,16 @@ import com.shinobicontrols.messageme.models.Conversation;
 import com.shinobicontrols.messageme.models.DataProvider;
 import com.shinobicontrols.messageme.models.Message;
 
+import java.util.Observable;
+import java.util.Observer;
+
 /**
  * A fragment representing a single Conversation detail screen.
  * This fragment is either contained in a {@link ConversationListActivity}
  * in two-pane mode (on tablets) or a {@link ConversationDetailActivity}
  * on handsets.
  */
-public class ConversationDetailFragment extends ListFragment {
+public class ConversationDetailFragment extends ListFragment implements Observer {
     /**
      * The fragment argument representing the item ID that this fragment
      * represents.
@@ -34,6 +37,8 @@ public class ConversationDetailFragment extends ListFragment {
     public ConversationDetailFragment() {
     }
 
+    private ArrayAdapter<Message> messageArrayAdapter;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +48,30 @@ public class ConversationDetailFragment extends ListFragment {
             // arguments. In a real-world scenario, use a Loader
             // to load content from a content provider.
             mItem = DataProvider.getInstance().getConversationMap().get(getArguments().getString(ARG_ITEM_ID));
-            setListAdapter(new ArrayAdapter<Message>(
+            messageArrayAdapter = new ArrayAdapter<Message>(
                     getActivity(),
                     android.R.layout.simple_list_item_1,
                     android.R.id.text1,
                     mItem.getMessages()
-            ));
+            );
+            setListAdapter(messageArrayAdapter);
+        }
+
+        // Register as a listener
+        DataProvider.getInstance().addObserver(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        // Remove ourself as a listener
+        DataProvider.getInstance().deleteObserver(this);
+        super.onDestroy();
+    }
+
+    @Override
+    public void update(Observable observable, Object data) {
+        if(messageArrayAdapter != null) {
+            messageArrayAdapter.notifyDataSetChanged();
         }
     }
 }
