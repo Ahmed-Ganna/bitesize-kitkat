@@ -3,6 +3,8 @@ package com.shinobicontrols.messageme;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
 
 /**
@@ -49,6 +51,9 @@ public class ConversationListActivity extends FragmentActivity
                     .setActivateOnItemClick(true);
         }
 
+        // Add the button
+
+
         // TODO: If exposing deep links into your app, handle intents here.
     }
 
@@ -77,5 +82,22 @@ public class ConversationListActivity extends FragmentActivity
             detailIntent.putExtra(ConversationDetailFragment.ARG_ITEM_ID, id);
             startActivity(detailIntent);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.conversation_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_compose) {
+            Intent intent = new Intent(this, ComposeSMSActivity.class);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
