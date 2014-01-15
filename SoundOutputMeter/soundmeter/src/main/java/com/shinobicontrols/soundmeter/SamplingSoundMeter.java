@@ -16,6 +16,7 @@ public class SamplingSoundMeter {
     public SamplingSoundMeter(SoundLevelUpdateable updateableObject) {
         updateable = updateableObject;
         visualizer = new Visualizer(0);
+        visualizer.setMeasurementMode(Visualizer.MEASUREMENT_MODE_PEAK_RMS);
         handler = new Handler();
     }
 
