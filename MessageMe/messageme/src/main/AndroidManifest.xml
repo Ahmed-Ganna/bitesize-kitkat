@@ -2,11 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.shinobicontrols.messageme" >
 
-    <uses-permission android:name="android.permission.BROADCAST_SMS" />
-    <uses-permission android:name="android.permission.BROADCAST_WAP_PUSH" />
-    <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -30,49 +25,53 @@
                 android:value="com.shinobicontrols.messageme.ConversationListActivity" />
         </activity>
 
+        <!-- BroadcastReceiver that listens to incoming SMS messages -->
         <receiver
             android:name="com.shinobicontrols.messageme.receivers.SMSBroadcastReceiver"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BROADCAST_WAP_PUSH"
-            >
+            android:permission="android.permission.BROADCAST_SMS" >
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_DELIVER" />
-                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
             </intent-filter>
         </receiver>
 
+        <!-- BroadcastReceiver that listens to incoming MMS messages -->
+        <receiver
+            android:name="com.shinobicontrols.messageme.receivers.MMSBroadcastReceiver"
+            android:permission="android.permission.BROADCAST_WAP_PUSH" >
+            <intent-filter>
+                <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+                <data android:mimeType="application/vnd.wap.mms-message" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Activity for composing SMS/MMS messages -->
         <activity
             android:name="com.shinobicontrols.messageme.ComposeSMSActivity"
             android:label="@string/title_activity_compose_sms" >
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.intent.action.SENDTO" />
-
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="sms" />
                 <data android:scheme="smsto" />
                 <data android:scheme="mms" />
                 <data android:scheme="mmsto" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
             </intent-filter>
         </activity>
 
+        <!-- Service that delivers messages for "Quick Response" -->
         <service
             android:name="com.shinobicontrols.messageme.HeadlessSmsSendService"
-            android:permission="android.permission.SEND_RESPONSE_VIA_MESSAGE"
-            android:enabled="true"
-            android:exported="true" >
+            android:exported="true"
+            android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE" >
             <intent-filter>
                 <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
-
+                <category android:name="android.intent.category.DEFAULT" />
                 <data android:scheme="sms" />
                 <data android:scheme="smsto" />
                 <data android:scheme="mms" />
                 <data android:scheme="mmsto" />
-
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </service>
     </application>
