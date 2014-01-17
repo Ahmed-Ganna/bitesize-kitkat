@@ -1,19 +1,23 @@
 package com.shinobicontrols.printshop;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.print.PrintManager;
 import android.support.v4.print.PrintHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PrintDemoFragment extends Fragment {
+public class PrintDemoFragment extends Fragment implements ImageAndTextContainer {
 
     public PrintDemoFragment() {
     }
@@ -29,24 +33,48 @@ public class PrintDemoFragment extends Fragment {
             public void onClick(View v) {
                 PrintHelper printHelper = new PrintHelper(getActivity());
                 printHelper.setScaleMode(PrintHelper.SCALE_MODE_FIT);
-                // Get hold of the imageview
-                ImageView imageView = (ImageView) rootView.findViewById(R.id.imageView);
                 // Get the image
-                if ((imageView.getDrawable()) != null) {
+                Bitmap image = getImage();
+                if (image != null) {
                     // Send it to the print helper
-                    printHelper.printBitmap("PrintShop", ((BitmapDrawable) imageView.getDrawable()).getBitmap());
+                    printHelper.printBitmap("PrintShop", image);
                 }
 
             }
         });
 
+        final ImageAndTextContainer imageAndTextContainer = this;
+
         rootView.findViewById(R.id.print_page_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("PrintDemoFragment", "Print page clicked");
+                // Create a PrintDocumentAdapter
+                PrintShopPrintDocumentAdapter adapter = new PrintShopPrintDocumentAdapter(imageAndTextContainer);
+                // Get the print manager from the context
+                PrintManager printManager = (PrintManager)getActivity().getSystemService(Context.PRINT_SERVICE);
+                // And print the document
+                printManager.print("PrintShop", adapter, null);
             }
         });
 
         return rootView;
+    }
+
+    @Override
+    public String getText() {
+        TextView textView = (TextView) getView().findViewById(R.id.textView);
+        return textView.getText().toString();
+    }
+
+    @Override
+    public Bitmap getImage() {
+        ImageView imageView = (ImageView) getView().findViewById(R.id.imageView);
+        Bitmap image = null;
+        // Get the image
+        if ((imageView.getDrawable()) != null) {
+            // Send it to the print helper
+            image = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        }
+        return image;
     }
 }
