@@ -49,7 +49,7 @@ public class PrintDemoFragment extends Fragment implements ImageAndTextContainer
             @Override
             public void onClick(View v) {
                 // Create a PrintDocumentAdapter
-                PrintShopPrintDocumentAdapter adapter = new PrintShopPrintDocumentAdapter(imageAndTextContainer);
+                PrintShopPrintDocumentAdapter adapter = new PrintShopPrintDocumentAdapter(imageAndTextContainer, getActivity());
                 // Get the print manager from the context
                 PrintManager printManager = (PrintManager)getActivity().getSystemService(Context.PRINT_SERVICE);
                 // And print the document
