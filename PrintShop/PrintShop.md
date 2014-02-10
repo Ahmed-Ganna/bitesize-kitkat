@@ -141,7 +141,171 @@ pages based on the size of the page the printer is going to use. Here we've got
 a really simple check based on the magic value of 1000mm. 
 
 `pdfDocument` is a member variable which will be used with the `onWrite()` method,
-and we prepare it here, whilst we've been passsed the context and the attributes.
+and we prepare it here, whilst we've been passed the context and the attributes.
+From the point of view of the PrintAdapter, printing is actually just the
+equivalent of creating a PDF and sending it to the printer. The print framework
+deals with interacting with the different print drivers.
+
+When the layout has been completed, the callback requires 2 arguments - a
+`PrintDocumentInfo` object which contains information on how the document should
+be constructed, and a boolean which specifies whether the layout has changed since
+the last time `OnLayout` was called. Since our layout is very simple, the only
+consideration for whether the layout has changed is the number of pages - so
+we add a simple check for that.
+
+To create the `PrintDocumentInfo` object, we use a `Builder`, setting the output
+file name, the content type to be document (as opposed to photo), and the number
+of pages to value we calculated.
+
+We then call the `onLayoutFinished()` method on the callback object supplied as
+an argument. It's likely that the `onLayout` method will be called multiple times
+per print job - as the user configures the print job (e.g. changing paper size).
+
+#### Writing the print job
+
+Once the user is happy with the settings for a given job then they will tap the
+print button, and that'll call `onWrite()` on the print adapter. 
+
+We'll take a look at what this method does in small chunks:
+
+    @Override
+    public void onWrite(PageRange[] pages, ParcelFileDescriptor destination, CancellationSignal cancellationSignal, final WriteResultCallback callback) {
+
+        // Register a cancellation listener
+        cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+            @Override
+            public void onCancel() {
+                // If cancelled then ensure that the PDF doc gets thrown away
+                pdfDocument.close();
+                pdfDocument = null;
+                // And callback
+                callback.onWriteCancelled();
+            }
+        });
+
+        ...
+    }
+
+In the same way as we did with the `onLayout()` method, we register a cancellation
+listener - which is an `OnCancelListener` object. This again means that should the
+user cancel the print job, we can stop what we're doing and tidy up.
+
+Next, we'll actually draw each of the pages of the print job, looping through
+them one at a time:
+
+    // Iterate through the pages
+    for (int currentPageNumber = 0; currentPageNumber < pageCount; currentPageNumber++) {
+        // Has this page been requested?
+        if(!pageRangesContainPage(currentPageNumber, pages)) {
+            // Skip this page
+            continue;
+        }
+
+        // Start the current page
+        PdfDocument.Page page = pdfDocument.startPage(currentPageNumber);
+
+        // Get the canvas for this page
+        Canvas canvas = page.getCanvas();
+
+        // Draw on the page
+        drawPage(currentPageNumber, canvas);
+
+        // Finish the page
+        pdfDocument.finishPage(page);
+    }
+
+The first argument to the `onWrite()` method is an array of `PageRange` objects.
+This allows the user to specify exactly which pages they would like printed. In
+order to determine whether the current page should be drawn, the following helper
+method checks to see whether the given page number exists within an array of
+page ranges:
+
+    private boolean pageRangesContainPage(int pageNumber, PageRange[] ranges)
+    {
+        for(PageRange range : ranges) {
+            if(pageNumber >= range.getStart() && pageNumber <= range.getEnd()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+The `PdfDocument` class was also added in KitKat, and provides an easy-to-use way
+to build PDF documents. The document was created in the `onLayout()` method, and
+here we create a new page with `startPage()`, get hold of its `Canvas` with
+`getCanvas()`, before drawing on it (using the `drawPage()`) utility method. Once
+the page has been completed, the page should be completed with `finishPage()`.
+
+The difficult part of creating the PDF is actually hidden behind the `drawPage()`
+method, which gives an idea of how it can be achieved:
+
+    private void drawPage(int pageNumber, Canvas canvas) {
+        if(pageCount == 1) {
+            // We're putting everything on one page
+            Rect imageRect = new Rect(10, 10, canvas.getWidth() - 10, canvas.getHeight() / 2 - 10);
+            drawImage(imageAndTextContainer.getImage(), canvas, imageRect);
+            Rect textRect = new Rect(10, canvas.getHeight() / 2 + 10, canvas.getWidth() - 10, canvas.getHeight() - 10);
+            drawText(imageAndTextContainer.getText(), canvas, textRect);
+        } else {
+            // Same rect for image and text
+            Rect contentRect = new Rect(10, 10, canvas.getWidth() - 10, canvas.getHeight() - 10);
+            // Image on page 0, text on page 1
+            if(pageNumber == 0) {
+                drawImage(imageAndTextContainer.getImage(), canvas, contentRect);
+            } else {
+                drawText(imageAndTextContainer.getText(), canvas, contentRect);
+            }
+        }
+    }
+
+Most of the code in this method is determining how the image and text components
+should actually be laid out. This is fine for this simple example - in reality
+it's likely that you'd want to create a separate layout engine, and pass the
+laying out and drawing of the document to that.
+
+Once the frames of the individual components has been calculated, the following
+helper methods are used to actually draw the content:
+
+    private void drawText(String text, Canvas canvas, Rect rect) {
+        TextPaint paint = new TextPaint();
+        paint.setColor(Color.BLACK);
+
+        StaticLayout sl = new StaticLayout(text, paint, (int)rect.width(), Layout.Alignment.ALIGN_CENTER, 1, 1, false);
+
+        canvas.save();
+        canvas.translate(rect.left, rect.top);
+        sl.draw(canvas);
+        canvas.restore();
+    }
+
+    private void drawImage(Bitmap image, Canvas canvas, Rect r) {
+        canvas.drawBitmap(image, null, r, new Paint());
+    }
+
+Text rendering is performed using a `StaticLayout`, and image rendering using the
+`drawBitmap()` method on `Canvas`.
+
+The final part of the `onWrite()` method in our print adapter is to take the PDF
+document we've created and attempt to write it to the print service:
+
+    // Attempt to send the completed doc out
+    try {
+        pdfDocument.writeTo(new FileOutputStream(destination.getFileDescriptor()));
+    } catch (IOException e) {
+        callback.onWriteFailed(e.toString());
+        return;
+    } finally {
+        pdfDocument.close();
+        pdfDocument = null;
+    }
+
+    // The print is complete
+    callback.onWriteFinished(pages);
+
+The `destination` argument supplies the location that the PDF document should
+be written to, and we simply use the `writeTo()` method to do this. Depending
+on the outcome of this attempt we either callback `onWriteFailed()` or
+`onWriteFinished()`.
 
 
 
