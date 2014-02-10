@@ -50,7 +50,8 @@ public class PrintShopPrintDocumentAdapter extends PrintDocumentAdapter {
 
         // Prepare the layout.
         int newPageCount;
-        if(newAttributes.getMediaSize().getHeightMils() < 1000) {
+        // Mils is 1/1000th of an inch. Obviously.
+        if(newAttributes.getMediaSize().getHeightMils() < 10000) {
             newPageCount = 2;
         } else {
             newPageCount = 1;
