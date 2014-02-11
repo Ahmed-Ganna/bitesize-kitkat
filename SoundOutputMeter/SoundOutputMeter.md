@@ -200,3 +200,14 @@ volume is changed:
 
 ### Conclusion
 
+This is a relatively simple addition to the `visualizer` class, allowing you to
+perform simple measurements on live audio output sessions, but it can actually
+make the life of the developer quite a lot easier. Previously these values
+would have had to be calculated manually using the audio sample interface of the
+visualizer class, but the measurements API is a lot simpler. Using a similar
+architecture to the one we've created here today will allow you to create visual
+audio meters without much difficulty at all.
+
+Don't forget that all the code for today's __SoundOutputMeter__ project is
+available on Github at GITHUB_LINK_HERE.
+
