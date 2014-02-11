@@ -88,7 +88,9 @@ the workflow associated with the printing process:
 - `onFinish()`
 
 In the simple example provided in __PrintShop__, we actually only need to override
-2 of these methods. We'll look at `onLayout()` first:
+2 of these methods. We'll look at `onLayout()` first.
+
+#### Laying out the pages
 
     @Override
     public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, CancellationSignal cancellationSignal, final LayoutResultCallback callback, Bundle extras) {
@@ -311,3 +313,4 @@ on the outcome of this attempt we either callback `onWriteFailed()` or
 
 ### Conclusion
 
+Write some conclusion here. Maybe
