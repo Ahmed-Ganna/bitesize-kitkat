@@ -88,7 +88,74 @@ the workflow associated with the printing process:
 - `onFinish()`
 
 In the simple example provided in __PrintShop__, we actually only need to override
-2 of these methods. We'll look at `onLayout()` first.
+2 of these methods - `onLayout()` and `onWrite()`, which we'll take a look at
+after we've taken a look at the constructor.
+
+
+#### Creating a custom print adapter
+
+The simple adapter we'll build today will be able to print any object which contains
+an image and some text. In order to describe such objects we'll create a interface:
+`imageAndTextContainer`:
+
+    public interface ImageAndTextContainer {
+        public String getText();
+        public Bitmap getImage();
+    }
+
+Very simple interface which defines a way of obtaining a `Bitmap` for an image and
+a `String` of text. When we create a print document adapter, we'll require one of
+these containers, as well as a `Context` object:
+
+    public class PrintShopPrintDocumentAdapter extends PrintDocumentAdapter {
+
+        private ImageAndTextContainer imageAndTextContainer;
+        private Context context;
+        private int pageCount;
+        private PrintedPdfDocument pdfDocument;
+
+        public PrintShopPrintDocumentAdapter(ImageAndTextContainer container, Context cxt) {
+            imageAndTextContainer = container;
+            context = cxt;
+        }
+    }
+
+We save these arguments off into member variables for now. You'll see how the other
+two member variables are used later on, as we work through the page layout and
+writing operations.
+
+Since we want to print the fragment we've already seen, we need to ensure that it
+implements this new `ImageAndTextContainer` interface:
+
+    public class PrintDemoFragment extends Fragment implements ImageAndTextContainer {
+
+        ...
+
+        @Override
+        public String getText() {
+            TextView textView = (TextView) getView().findViewById(R.id.textView);
+            return textView.getText().toString();
+        }
+
+        @Override
+        public Bitmap getImage() {
+            ImageView imageView = (ImageView) getView().findViewById(R.id.imageView);
+            Bitmap image = null;
+            // Get the image
+            if ((imageView.getDrawable()) != null) {
+                // Send it to the print helper
+                image = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+            }
+            return image;
+        }
+    }
+
+We've actually already created the `getImage()` method for the previous photo
+printing section, so actually all we've added is the `getText()` method, which
+in this simple example just grabs the content of the `TextView`.
+
+Now that we've created the print adapter, we need to prepare the page layout, and
+write the completed print document to the print manager.
 
 #### Laying out the pages
 
@@ -140,7 +207,8 @@ or indeed kill any worker threads that you've kicked off.
 
 In order to demonstrate how the layout can change, we're calculating the number of
 pages based on the size of the page the printer is going to use. Here we've got 
-a really simple check based on the magic value of 1000mm. 
+a really simple check based on the magic value of 8000Mils (note that 1 Mil =
+1/1000 inch). 
 
 `pdfDocument` is a member variable which will be used with the `onWrite()` method,
 and we prepare it here, whilst we've been passed the context and the attributes.
@@ -310,6 +378,33 @@ on the outcome of this attempt we either callback `onWriteFailed()` or
 `onWriteFinished()`.
 
 
+### Using the custom print adapter
+
+Now that we've created the print adapter, it's really easy to use it. As the
+`onOnClick` callback for a button, we provide the following implementation:
+
+    final ImageAndTextContainer imageAndTextContainer = this;
+    rootView.findViewById(R.id.print_page_button).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // Create a PrintDocumentAdapter
+            PrintShopPrintDocumentAdapter adapter = new PrintShopPrintDocumentAdapter(imageAndTextContainer, getActivity());
+            // Get the print manager from the context
+            PrintManager printManager = (PrintManager)getActivity().getSystemService(Context.PRINT_SERVICE);
+            // And print the document
+            printManager.print("PrintShop", adapter, null);
+        }
+    });
+
+Notice that we create the print document adapter, providing a reference to an
+`imageAndTextContainer` (which we defined before), and a context within which
+to render.
+
+We then get hold of the current `PrintManager`, which is available through the
+activity's `getSystemService()` method. We then create the print job using the
+`print()` method, passing the name of the job and the print document adapter.
+This will kick off the pint process and present a dialog to the user to allow
+them to control it.
 
 ### Conclusion
 
