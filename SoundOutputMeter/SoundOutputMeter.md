@@ -178,21 +178,25 @@ buttons:
 Because of the pulling out of the `Visualizer` code into a separate class, it means
 that the fragment is really simple.
 
-Now if you run the app up, and start the audio meter you should see something like
+Now if you run the app up, you should see something like
 this:
 
-PICTURE
+![SoundMeter disabled](img/sound_meter_disabled.png)
+
+Tapping the start button will start the audio meter:
+
+![SoundMeter enabled](img/sound_meter_no_sound.png)
 
 If you start some audio playback in another app and then come back to __SoundOutputMeter__
 then you'll see the values update as the audio plays:
 
-PICTURE
+![SoundMeter with sound](img/sound_meter_enabled.png)
 
 To demonstrate that it's working you can see how the values change as the device
 volume is changed:
 
-PICTURES
-
+![SoundMeter quiet sounds](img/sound_meter_quiet.png)
+![SoundMeter loud sounds](img/sound_meter_loud.png)
 
 ### Conclusion
 
