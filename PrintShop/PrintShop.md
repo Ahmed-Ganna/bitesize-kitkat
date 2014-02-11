@@ -102,10 +102,20 @@ specifies exactly how the print content should be laid out.
 to layout a page for printing. It has 4 methods which can be overridden, describing
 the workflow associated with the printing process:
 
-- `onStart()`
-- `onLayout()`
-- `onWrite()`
-- `onFinish()`
+- `onStart()` -- This is called once at the beginning of a new print job. It can be
+used to create resources and objects required for the lifetime of the job - for
+example you might have a layout managed which you would instantiate at this point.
+- `onLayout()` -- Called at least once with the details of the print job - e.g.
+page size, orientation. As the user changes these settings via the print dialog
+additional calls will be made to this method to allow updates in the layout. You
+must provide notification that the layout is complete via the provided callback
+object.
+- `onWrite()` -- __Might__ be called, following a call to `onLayout()`. This signals
+a request to write a PDF of the specified pages to a given output location. In a
+similar way to `onLayout()`, you must provide notification that this method is
+complete via the callback object.
+- `onFinish()` -- Always called once at the end of a job to allow cleanup of
+resources you may have created during the job.
 
 In the simple example provided in __PrintShop__, we actually only need to override
 2 of these methods - `onLayout()` and `onWrite()`, which we'll take a look at
@@ -178,6 +188,13 @@ Now that we've created the print adapter, we need to prepare the page layout, an
 write the completed print document to the print manager.
 
 #### Laying out the pages
+
+The `onLayout()` method is likely to be called multiple times, as the user configures
+their print settings. Therefore it should be a fairly cheap operation. The result
+of this call should provide a `PrintDocumentInfo` object, which contains information
+such as the number of pages in the document.
+
+Let's take a look at the completed method and then work though the constituent parts:
 
     @Override
     public void onLayout(PrintAttributes oldAttributes, PrintAttributes newAttributes, CancellationSignal cancellationSignal, final LayoutResultCallback callback, Bundle extras) {
@@ -434,4 +451,14 @@ changing the paper size will change the number of pages printed:
 
 ### Conclusion
 
-Write some conclusion here. Maybe
+The new Android Printing Framework makes it really easy to add printing to your
+apps - both for simple photo content, to more complex, multi-page custom layouts.
+This article has taken a look at how you can add printing to apps, but there is
+another side to the framework - adding support for devices so they can register
+themselves with the printing framework. For more information, check out the
+pages about `android.printservice` on [developer.android.com](http://developer.android.com/reference/android/printservice/package-summary.html).
+
+The code for the accompanying project is available on GitHub as part of the
+KitKat: finger-by-finger project. Go grab it and give it a try - let me know if
+you have any comments or feedback - either in the comments section below, on
+GitHub or on twitter [@iwantmyrealname](https://twitter.com/iwantmyrealname). 
