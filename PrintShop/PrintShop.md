@@ -19,6 +19,12 @@ at GITHUB_LINK_HERE. It was written and tested in AndroidStudio 0.4.4, so you
 should be able to get it running as a gradle project in either AndroidStudio or
 Eclipse.
 
+The sample project comprises of a single activity and fragment, which contains
+an image and some accompanying text. There are 2 buttons, each triggering a print
+operation, using the two techniques we're going to explore in this post.
+
+![PrintShop screenshot](img/print_app.png "PrintShop screenshot")
+
 
 ### Printing Images
 
@@ -66,9 +72,23 @@ This finds the `ImageView` with the specified name, and then extracts a bitmap
 from it. This is returned so that it can be set to the `PrintHelper`.
 
 Once `printBitmap` has been called, then the system will present a print dialog
-to the user, allowing the details of the print job to be specified.
+to the user, allowing the details of the print job to be specified. These include
+the number of copies, the page ranges, paper size and orientation:
 
-PUT SOME PICTURES HERE
+![Setting printer options](img/printer_settings.png "Setting printer options")
+
+
+The new print framework in KitKat also provides a method of adding support for
+print devices, but even without this, the system provides support for saving a
+PDF, printing to Google Drive and Google Cloud Print devices:
+
+![Choosing an available printer](img/printer_selection.png "Selecting a printer")
+
+
+Selecting "Save as PDF" will create a PDF containing the photo, with the specified
+page size:
+
+![Printed photo](img/photo_output.png "Printed photo")
 
 
 
@@ -405,6 +425,12 @@ activity's `getSystemService()` method. We then create the print job using the
 `print()` method, passing the name of the job and the print document adapter.
 This will kick off the pint process and present a dialog to the user to allow
 them to control it.
+
+Due to the way in which we control the layout of this particular print job,
+changing the paper size will change the number of pages printed:
+
+![A4 Portrait - 1 Page](img/page_1_page.png)
+![A5 Landscape - 2 Pages](img/page_2_pages.png)
 
 ### Conclusion
 
