@@ -209,9 +209,149 @@ Google Drive, and get it to load into view for editing:
 
 ### Saving a file
 
+Once you've edited a file you'll want to save it. This is actually completely
+seamless, since the all the cleverness of the storage access framework is hidden
+away behind the `Uri` that you've been provided. Therefore, to save our updated
+string:
 
-### Pulling it all together
+    ParcelFileDescriptor pfd = mContentResolver.openFileDescriptor(params[0].uri, "w");
+    FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+    fileOutputStream.write(params[0].newContent.getBytes(Charset.forName("UTF-8")));
+    fileOutputStream.close();
+    pfd.close();
 
+We first get a file descriptor which enables write access from the a content
+resolver, before creating a `FileOutputStream` and writing the contents of the
+String. This really is simplicity itself - excellent.
+
+
+#### Asynchronous String Writer
+
+In the same way that we created an async string reader, we're going to use a
+writer as well.
+
+    public class AsyncStringWriter extends AsyncTask<AsyncStringWriterParams, Void, Boolean>
+
+The `Param` type is a custom class which encapsulates the `Uri` of the document
+to save, and `String` of the new content:
+
+    public class AsyncStringWriterParams {
+        public Uri uri;
+        public String newContent;
+
+        public AsyncStringWriterParams(Uri uri, String newContent) {
+            this.uri = uri;
+            this.newContent = newContent;
+        }
+    }
+
+The constructor will again require a `ContentResolver`, as well as an
+`AsyncStringWriterCompletionHandler`:
+
+    private ContentResolver mContentResolver;
+    private AsyncStringWriterCompletionHandler mCompletionHandler;
+    public AsyncStringWriter(ContentResolver contentResolver,
+                             AsyncStringWriterCompletionHandler completionHandler) {
+        mContentResolver = contentResolver;
+        mCompletionHandler = completionHandler;
+    }
+
+where
+
+    public interface AsyncStringWriterCompletionHandler {
+        public void StringSaved(Boolean success);
+    }
+
+The `doInBackground()` method performs the actual saving of the document, as
+detailed above:
+
+    @Override
+    protected Boolean doInBackground(AsyncStringWriterParams... params) {
+        Boolean success = false;
+        try {
+            ParcelFileDescriptor pfd = mContentResolver.openFileDescriptor(params[0].uri, "w");
+            FileOutputStream fileOutputStream = new FileOutputStream(pfd.getFileDescriptor());
+            fileOutputStream.write(params[0].newContent.getBytes(Charset.forName("UTF-8")));
+            fileOutputStream.close();
+            pfd.close();
+            success = true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return success;
+    }
+
+and on completion, we return a `Boolean` specifying whether or not the save was
+successful:
+
+    @Override
+    protected void onPostExecute(Boolean aBoolean) {
+        mCompletionHandler.StringSaved(aBoolean);
+    }
+
+
+#### Using the writer
+
+In our activity we have a `SaveText()` method which creates an `AsyncStringWriter`
+and uses it to save the new text to the open file's location:
+
+    @Override
+    public void SaveText(String text) {
+        Log.i(TAG, "Save the updated text");
+        AsyncStringWriter stringWriter = new AsyncStringWriter(getContentResolver(), textEditorFragment);
+        AsyncStringWriterParams params = new AsyncStringWriterParams(currentOpenFileUri, text);
+        stringWriter.execute(params);
+    }
+
+This method is wired in to a button on the activity bar inside the editor fragment:
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.edit_text_save) {
+            if(mText != null) {
+                mListener.SaveText(getEditTextContent());
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+There are some additional details involving the interaction between the fragment
+and the activity - you can see them in the source code without much difficulty.
+
+#### Checking it works
+
+So now, if you edit an open document:
+
+![Edited document](img/text_edit_after.png)
+
+and hit the save button, then the document will be saved, irrespective of where
+it actually lives. The document above is on my Google Drive, and I can confirm
+that it works by taking a look on web:
+
+![Desktop confirmation](img/text_edit_desktop.png)
 
 
 ### Conclusion
+
+I think this is really quite cool - editing cloud documents is now as easy as it
+would be to edit a document on the local disk. The storage access framework
+nicely abstracts away the complexities of dealing with different storage providers
+into a simple `Uri`-based scheme.
+
+There is a lot more that is possible with the SAF - including creating new
+documents, deleting documents and handling document metadata. There are extensive
+details available on the developer pages at
+[developer.android.com](https://developer.android.com/guide/topics/providers/document-provider.html).
+
+Hopefully all the cloud storage providers will take the opportunity to implement
+storage providers so that it's really easy for users to interact with their
+different sources.
+
+Don't forget that the source code for this simple cloud text editor is all
+available on Github at INSERT_GITHUB_LINK. If you have any questions or comments,
+don't hesitate to pop them in below, on Github or hit me up on twitter
+[@iwantmyrealname](https://twitter.com/iwantmyrealname).
+
