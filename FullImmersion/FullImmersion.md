@@ -236,7 +236,54 @@ the immersive button as the app enters immersive mode.
 
 #### Sticky Immersive mode
 
+The second new visibility mode added to KitKat is sticky immersive, and as you
+might expect it's very closely related to immersive mode. Whereas immersive mode
+is canceled when the user swipes down from the top of the screen, sticky immersive
+mode will automatically re-enter immersive mode after a short period of time. In
+this respect it is very much like a cross between immersive and lean-back. This
+makes it ideally suited for apps which may occasionally require the user to
+navigate around, but the main focus of the app is very much on the content - for
+example games or a drawing app.
+
+Immersive sticky introduces one more visibility flag:
+
+- `SYSTEM_UI_FLAG_IMMERSIVE_STICKY` enables immersive sticky mode. Importantly
+this flag will not be removed from the visibility mask when the user swipes down,
+and it will return to immersive mode after a short time.
 
 
+Therefore, our `enableFullScreen()` method becomes the following:
+
+    @Override
+    protected void enableFullScreen(boolean enabled) {
+        int newVisibility =  View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                           | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                           | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+
+        if(enabled) {
+            newVisibility |= View.SYSTEM_UI_FLAG_FULLSCREEN
+                          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                          | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+        }
+
+        getDecorView().setSystemUiVisibility(newVisibility);
+    }
+
+Calling this method with `true` as the `enabled` argument will enter sticky
+immersive, and this will remain until the system's UI visibility is changed
+elsewhere.
+
+It has the following appearance:
+
+![Sticky Immersive](img/immersive_sticky.gif)
 
 ### Conclusion
+
+KitKat introduces a couple of new approaches for displaying full-screen content
+which makes it easier to get the behavior users expect from different app
+experiences.
+
+The app that we've built here demonstrates how to use 3 popular full-screen
+modes, and you can play around with them to decide which will work best for your
+app. The code is available on Github LINK and if you have any questions/comments then
+let me know below, on Github or via twitter [@iwantmyrealname](https://twitter.com/iwantmyrealname).
