@@ -49,30 +49,33 @@ public class LeanBackActivity extends AbstractFullScreenLayoutActivity implement
 
         // Want to hide again after 3s
         if(!enabled) {
-            // First cancel any queued events - i.e. resetting the countdown clock
-            mLeanBackHandler.removeCallbacks(mEnterLeanback);
-            // And fire the event in 3s time
-            mLeanBackHandler.postDelayed(mEnterLeanback, 3000);
+            resetHideTimer();
         }
 
         // Set the visibility
         getDecorView().setSystemUiVisibility(newVisibility);
     }
 
+    private void resetHideTimer() {
+        // First cancel any queued events - i.e. resetting the countdown clock
+        mLeanBackHandler.removeCallbacks(mEnterLeanback);
+        // And fire the event in 3s time
+        mLeanBackHandler.postDelayed(mEnterLeanback, 3000);
+    }
+
     @Override
     public void onClick(View v) {
         // If the `mainView` receives a click event then reset the leanback-mode clock
-        enableFullScreen(false);
+        resetHideTimer();
     }
 
     @Override
     public void onSystemUiVisibilityChange(int visibility) {
-        int diff = mLastSystemUIVisibility ^ visibility;
-        mLastSystemUIVisibility = visibility;
-        if((diff&View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0
-                && (visibility&View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
-            enableFullScreen(false);
+        if((mLastSystemUIVisibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0
+                     && (visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+            resetHideTimer();
         }
+        mLastSystemUIVisibility = visibility;
     }
 
 }
