@@ -167,7 +167,76 @@ behavior like the following:
 
 #### Immersive mode
 
+Immersive view is new to KitKat, and allows users to interact with the view whilst
+in full-screen mode, in contrast to leanback mode, which shows the system UI as
+soon as interaction begins. This approach is ideal for ebook readers, where whilst
+reading the user would want to be able to see the entire page of content, but will
+need to be able to get back at the controls to change books and the suchlike.
+
+The same flags are of interest - with the addition of:
+
+- `SYSTEM_UI_FLAG_IMMERSIVE` enter immersive mode, where the view is fullscreen,
+and touches are sent through to the content - i.e. are not intercepted and treated
+as visibility change triggers.
+
+The following demonstrates the use of these flags to set visibility:
+
+    protected void enableFullScreen(boolean enabled) {
+        int newVisibility =  View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                           | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                           | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+
+        if(enabled) {
+            newVisibility |= View.SYSTEM_UI_FLAG_FULLSCREEN
+                          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                          | View.SYSTEM_UI_FLAG_IMMERSIVE;
+        }
+
+        getDecorView().setSystemUiVisibility(newVisibility);
+    }
+Calling this method with `enabled` set as `true` will cause the navigation buttons,
+the status bar and the action bar to animate out. In order to get them to reappear,
+the user must swipe downwards from the top of the screen, and as such, the first
+time immersive mode is entered in an app, the user will be presented with the 
+following bubble:
+
+![Immersive Bubble](img/immersive.png)
+
+This disappears after a couple of seconds, and allows the user to interact with
+the full screen display as they might want to.
+
+Once the user swipes down from the top, then immersive display is canceled, and
+the system UI chrome will reappear. This will involve a call to `onSystemUiVisibilityChanged()`
+of the relevant listener. In the accompanying demo app, we use this as an opportunity
+to display a button which allows the user to re-enter immersive mode:
+
+    @Override
+    public void onSystemUiVisibilityChange(int visibility) {
+        Button immersiveButton = (Button)findViewById(R.id.enableImmersiveButton);
+        if((visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0) {
+            // Hide button
+            immersiveButton.setVisibility(View.INVISIBLE);
+        } else {
+            immersiveButton.setVisibility(View.VISIBLE);
+        }
+    }
+
+With the click handler simply calling our `enableFullScreen()` method:
+
+    public void immersiveButtonClickHandler(View view) {
+        enableFullScreen(true);
+    }
+
+![Enable immersive button](img/immersive_enable.png)
+
+
+Note that the control flow of the system UI visibility change listener will hide
+the immersive button as the app enters immersive mode.
+
+
 #### Sticky Immersive mode
+
+
 
 
 ### Conclusion
