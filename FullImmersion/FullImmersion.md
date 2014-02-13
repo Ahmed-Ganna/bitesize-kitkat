@@ -37,6 +37,131 @@ is exactly the behavior you might expect from a video player - the user doesn't
 need to be able to interact with the content, instead they will expect some
 controls to appear when they touch the screen.
 
+Android doesn't provide a UI visibility mode which performs exactly as we would
+want here, so we have to create it ourself.
+
+
+We set the mode using a combination of flags and the `setSystemUiVisibility()`
+method on the decor view. The following flags are of interest for leanback mode:
+
+- `SYSTEM_UI_FLAG_LAYOUT_STABLE` ensure that a stable layout size is provided to
+`fitSystemWindows()` method. This means that as the appearance of transient
+chrome changes then the layout of the underlying content should remain stable.
+- `SYSTEM_UI_FLAG_FULLSCREEN` hide the status bar, action bar and other non-critical
+screen adornments.
+- `SYSTEM_UI_FLAG_HIDE_NAVIGATION` if the device has navigation buttons (e.g.
+back, home etc) then hide them.
+- `SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION` lay the screen out as if the navigation
+is hidden, but don't necessarily hide it. This means that when the navigation does
+become hidden then the layout won't have to redraw itself.
+- `SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN` in a similar manner to the previous flag, lay
+the screen out as if it is in fullscreen mode.
+
+The following method is used to enable/disable fullscreen mode:
+
+    protected void enableFullScreen(boolean enabled) {
+        int newVisibility =  View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                           | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                           | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+
+        if(enabled) {
+            newVisibility |= View.SYSTEM_UI_FLAG_FULLSCREEN
+                          |  View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
+        }
+
+        // Set the visibility
+        getDecorView().setSystemUiVisibility(newVisibility);
+    }
+
+Irrespective of whether we're 'leaning back', or allowing the user to interact
+with the app, we need to set the layout to assume we're hiding the navigation
+and using full-screen. This means that when we enter leanback mode, there isn't
+a noticeable jerk as the view re-lays itself out.
+
+In the case where we are enabling fullscreen mode (i.e. leaning back) then we want
+to actually hide the navigation and enable full-screen.
+
+We set the new visibility on the decor view, which is supplied by the `getDecorView()`
+method:
+
+    private View getDecorView() {
+        return getWindow().getDecorView();
+    }
+
+Now, once this has been called (with `true` as an argument) then the chrome will
+disappear. If the user interacts with the screen, then it'll automatically cause
+the chrome to reappear, the initial touch being absorbed by the OS. In order to
+get the leanback experience of the UI disappearing again after a period of time
+then we we will listen for UI visibility changes and start a hide timer when one
+occurs:
+
+    public class LeanBackActivity extends AbstractFullScreenLayoutActivity implements
+        View.OnSystemUiVisibilityChangeListener {
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            ...
+            getDecorView().setOnSystemUiVisibilityChangeListener(this);
+        }
+        ...
+    }
+
+and provide an implementation for the `onSystemUiVisibilityChange()` method:
+
+    @Override
+    public void onSystemUiVisibilityChange(int visibility) {
+        if((mLastSystemUIVisibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) != 0
+                     && (visibility & View.SYSTEM_UI_FLAG_HIDE_NAVIGATION) == 0) {
+            resetHideTimer();
+        }
+        mLastSystemUIVisibility = visibility;
+    }
+
+Here, we're checking to find out whether the change in visibility represents the
+appearance of the navigation (i.e. from hidden to visible), and if it is then we
+start a timer to make the chrome hide again:
+
+    private void resetHideTimer() {
+        // First cancel any queued events - i.e. resetting the countdown clock
+        mLeanBackHandler.removeCallbacks(mEnterLeanback);
+        // And fire the event in 3s time
+        mLeanBackHandler.postDelayed(mEnterLeanback, 3000);
+    }
+
+where `mLeanBackHandler` and `mEnterLeanback` are defined as follows:
+
+
+    private final Handler mLeanBackHandler = new Handler();
+    private final Runnable mEnterLeanback = new Runnable() {
+        @Override
+        public void run() {
+            enableFullScreen(true);
+        }
+    };
+
+If the user interacts with the UI then we don't want the timer firing and hiding
+the controls away from underneath them. If you have some custom buttons then you
+could add a call to `resetHideTimer()` as part of the tap handler, but since
+we don't have any controls here, we'll add a `ClickListener` to the main content
+view:
+
+    protected void onCreate(Bundle savedInstanceState) {
+        ...
+        getMainView().setOnClickListener(this);
+    }
+
+And reset the timer when a click is performed:
+
+    @Override
+    public void onClick(View v) {
+        // If the `mainView` receives a click event then reset the leanback-mode clock
+        resetHideTimer();
+    }
+
+This approach completes the leanback mode, and if you run it up you'll see
+behavior like the following:
+
+![Leanback mode example](img/leanback.gif)
 
 
 
