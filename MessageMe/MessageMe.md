@@ -1,7 +1,8 @@
 # Android KitKat: finger-by-finger 
 
+## Creating a replacement default SMS app
 
-## Introduction
+### Introduction
 
 Before KitKat it has been possible to build fully-featured SMS apps on Android,
 but it has involved using hidden APIs - somewhat less than ideal. In KitKat
@@ -19,7 +20,7 @@ gradle project. Any problems then feel free to give me a shout or create a pull
 request to fix it :)
 
 
-## Reading SMS messages
+### Reading SMS messages
 
 Right from the beginnings of Android, developers have been able to register to
 receive SMS messages in their app - using the `RECEIVE_SMS` permission. We'll
@@ -178,7 +179,118 @@ this article to go in to detail about this, but the code is pretty each to
 follow.
 
 
-## Becoming the default SMS app
+### Becoming the default SMS app
+
+Receiving SMS messages has always been possible as demonstrated above. However,
+new in KitKat is the ability to become the default SMS app. Android will only allow
+one app to receive the `SMS_DELIVER_ACTION` intent, which both receives messages
+as they arrive and also is the only app which is allowed to write to the SMS
+provider.
+
+The kind folks at Google have written a
+[great blog post](http://android-developers.blogspot.co.uk/2013/10/getting-your-sms-apps-ready-for-kitkat.html)
+which explains what you need to do to be able to receive this intent, but it is
+lacking any sample code. We'll follow that as a basis and go through what you
+need to be able to do.
+
+Your app must be able to do the following in order that the system allow it to
+be marked as the default SMS app:
+
+- Receive SMS messages
+- Receive MMS messages
+- Handle requests to send messages, with UI
+- Provide a headless service to send SMS messages without UI - e.g. for responding
+to incoming calls
 
 
-## Conclusion
+#### Create a broadcast receiver for `SMS_DELIVER_ACTION`
+
+We've already created a broadcast receiver for SMS - nothing has changed with the
+class itself, we just need to wire it slightly differently in the app manifest:
+
+    <!-- BroadcastReceiver that listens to incoming SMS messages -->
+    <receiver
+        android:name="com.shinobicontrols.messageme.receivers.SMSBroadcastReceiver"
+        android:permission="android.permission.BROADCAST_SMS" >
+        <intent-filter>
+            <action android:name="android.provider.Telephony.SMS_DELIVER" />
+        </intent-filter>
+    </receiver>
+
+The intent filter has changed from `SMS_RECEIVED` to `SMS_DELIVER`, and the
+permission we require is `BROADCAST_SMS`.
+
+#### Create a broadcast receiver for `WAP_PUSH_DELIVER_ACTION`
+
+Creating a broadcast receiver for WAP messages is actually very similar to that
+for SMS messages - it's a class which inherits from `BroadcastReceiver` and provides
+an implementation for the `onReceive()` method. In this sample project we aren't
+actually going to provide a useful implementation, and hence this sample code
+wouldn't be appropriate for production use - every time a MMS arrives then the
+app would crash:
+
+    public class MMSBroadcastReceiver extends BroadcastReceiver {
+        public MMSBroadcastReceiver() {
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // TODO: This method is called when the BroadcastReceiver is receiving
+            // an Intent broadcast.
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+    }
+
+The manifest file needs updating in a similar way:
+
+    <!-- BroadcastReceiver that listens to incoming MMS messages -->
+    <receiver
+        android:name="com.shinobicontrols.messageme.receivers.MMSBroadcastReceiver"
+        android:permission="android.permission.BROADCAST_WAP_PUSH" >
+        <intent-filter>
+            <action android:name="android.provider.Telephony.WAP_PUSH_DELIVER" />
+            <data android:mimeType="application/vnd.wap.mms-message" />
+        </intent-filter>
+    </receiver>
+
+Here we need the `BROADCAST_WAP_PUSH` permission and the intent action is
+`WAP_PUSH_DELIVER`.
+
+#### Create an activity for sending new SMS/MMS
+
+It's important that if a user chooses to send some content via SMS, then the
+messaging app should be able to display the message to them and provide sending
+capability. This requires an activity be able to handle a couple of intents - 
+`SEND` and `SENDTO`. This is done by updating the manifest as follows:
+
+    <!-- Activity for composing SMS/MMS messages -->
+    <activity
+        android:name="com.shinobicontrols.messageme.ComposeSMSActivity"
+        android:label="@string/title_activity_compose_sms" >
+        <intent-filter>
+            <action android:name="android.intent.action.SEND" />
+            <action android:name="android.intent.action.SENDTO" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="sms" />
+            <data android:scheme="smsto" />
+            <data android:scheme="mms" />
+            <data android:scheme="mmsto" />
+        </intent-filter>
+    </activity>
+
+The moment that you actually want to send an SMS message you need to get hold of
+the `SmsManager` and call `sendTextMessage()` on it:
+
+    SmsManager smsManager = SmsManager.getDefault();
+    smsManager.sendTextMessage(recipient, "ME", message, null, null);
+
+
+#### Create a service for sending headless messages
+
+The final piece of the puzzle is creating a service which 
+
+
+### Setting the default SMS messaging app
+
+### Conclusion
