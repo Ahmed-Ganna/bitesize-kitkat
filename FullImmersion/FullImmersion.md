@@ -21,8 +21,11 @@ We're going to take a look at 3 different full-screen modes:
 
 - __Leanback__ This is the mode that was available pre-KitKat and is suited to
 video players.
-- __Immersive__ New to KitKat. Suitable for ???
-- __Sticky Immersive__ New to KitKat. Suitable for ???
+- __Immersive__ New to KitKat. Suitable for eBook reader - most of the time is
+spent in full-screen mode, but occasionally it's necessary to interact with other
+UI elements.
+- __Sticky Immersive__ New to KitKat. Suitable for games or a drawing app, where
+nearly all the workflow happens in full-screen mode.
 
 First up, leanback mode.
 
