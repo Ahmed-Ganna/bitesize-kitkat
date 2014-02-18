@@ -12,8 +12,9 @@ fullscreen mode, KitKat introduces 2 new immersive modes.
 In this post we'll take a look at 3 different full-screen modes, and discuss
 times when you might want to use them. There's an accompanying app which
 demonstrates how to use the different modes and what they might be used for. The
-source code is available on Github GITHUB_LINK_HERE, and is a gradle project which
-has been tested on Android Studio 0.4.4.
+source code is available on Github
+[github.com/ShinobiControls/bitwsize-kitkat](https://github.com/ShinobiControls/bitesize-kitkat),
+and is a gradle project which has been tested on Android Studio 0.4.4.
 
 ### The different full-screen experiences
 
@@ -288,5 +289,7 @@ experiences.
 
 The app that we've built here demonstrates how to use 3 popular full-screen
 modes, and you can play around with them to decide which will work best for your
-app. The code is available on Github LINK and if you have any questions/comments then
+app. The code is available on Github
+[github.com/ShinobiControls/bitwsize-kitkat](https://github.com/ShinobiControls/bitesize-kitkat)
+and if you have any questions/comments then
 let me know below, on Github or via twitter [@iwantmyrealname](https://twitter.com/iwantmyrealname).
