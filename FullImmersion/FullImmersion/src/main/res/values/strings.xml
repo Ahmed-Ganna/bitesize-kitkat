@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FullImmersion</string>
+    <string name="action_settings">Settings</string>
+
+
+    <string name="leanback_description">So-called "lean-back" mode is the limit of full-screen activities pre-KitKat. This mode allows the user to see a full-screen activity, but all interactions with the screen when in full-screen mode are absorbed by the system, which kicks the activity out of full-screen mode. The developer has to set up a process of showing/hiding the system UI as appropriate.</string>
+    <string name="immersive_description">Immersive mode hides the system UI and allows interaction with the main view. Swiping downwards from the top of the screen will show the system UI again. The first time an app goes into immersive mode, the user will be shown a bubble which explains how to get the system chrome to reappear.</string>
+    <string name="immersive_sticky_description">Immersive sticky hides the system UI and allows interaction with the main view. Swiping downwards from the top of the screen will show the system UI. After a short time the system UI will disappear again. As with immersive mode, the user will be shown a bubble to explain how it works the first time an app enters immersive mode.</string>
+
+</resources>
