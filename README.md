@@ -13,8 +13,8 @@ fork the repo and have a play around with the code!
 
 sam
 
-[iwantmyreal.name](http://iwantmyreal.name/)
-[@iwantmyrealname](https://twitter.com/iwantmyrealname)
+[iwantmyreal.name](http://iwantmyreal.name/) | 
+[@iwantmyrealname](https://twitter.com/iwantmyrealname) | 
 [ShinobiControls Blogs](http://www.shinobicontrols.com/blog/?author=sdavies)
 
 
