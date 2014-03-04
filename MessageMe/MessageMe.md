@@ -15,7 +15,8 @@ receive SMS messages without taking the responsibility of being the default SMS
 app on the device.
 
 The code for the app which accompanies this article is available on Github at
-GITHUB_LINK_HERE. It was developed in Android Studio 0.4.4 and therefore is a
+[github.com/ShinobiControls/Xamarin-cross-platform-charting](https://github.com/ShinobiControls/Xamarin-cross-platform-charting).
+It was developed in Android Studio 0.4.4 and therefore is a
 gradle project. Any problems then feel free to give me a shout or create a pull
 request to fix it :)
 
@@ -336,7 +337,36 @@ is using the Android settings app:
 
 #### In-App Default App Override
 
+Instructing your users to do this doesn't make their experience of your app
+particularly pleasant, so there is a technique whereby you can select a default
+app within an app. KitKat provides an activity which manages the changing of
+the default SMS app, so all you have to do is create an appropriate intent, and
+then fire off the `startActivity()` method:
 
+    Intent intent = new Intent(Telephony.Sms.Intents.ACTION_CHANGE_DEFAULT);
+    final String packageName = getActivity().getPackageName();
+    intent.putExtra(Telephony.Sms.Intents.EXTRA_PACKAGE_NAME, packageName);
+    startActivity(intent);
+
+You can see this in __ComposeSMSActivity.java__, as the click handler for a
+button. This button only appears if the current app isn't the default SMS app.
+To test this we compare the name of the current app with that of the default
+SMS app:
+
+    final String packageName = getActivity().getPackageName();
+    if(!Telephony.Sms.getDefaultSmsPackage(getActivity()).equals(packageName)) {
+        // We aren't default - do something!
+        ...
+    }
+
+This system-provided activity asks whether you would like to change the default
+SMS app to that you provided via the `packageName` string. If the app you
+provided doesn't request the correct permissions, and implement the correct
+activities, services and receivers then the `startActivity()` will be a no-op.
+Therefore it's important to check that you have followed the instructions laid
+out in the previous section.
+
+![Select default SMS app within app](img/sms_change_default_in_app.png)
 
 ### Conclusion
 
