@@ -288,9 +288,51 @@ the `SmsManager` and call `sendTextMessage()` on it:
 
 #### Create a service for sending headless messages
 
-The final piece of the puzzle is creating a service which 
+The final piece of the puzzle is creating a service which is able to respond to
+requests from the OS to send messages in headless mode. This occurs when a user
+chooses to send a pre-written text to somebody when they reject their call. In
+this instance this is provided by the aptly named `HeadlessSmsSendService`
+class. This extends `Service` and in the implementation provided here, this
+doesn't actually do anything. This would obviously need resolving if you were
+creating a fully-featured SMS app, but it is beyond the scope of this post.
+
+In order to wire this service, add the following to the `<application>` section
+of __AndroidManifest.xml__
+
+    <!-- Service that delivers messages for "Quick Response" -->
+    <service
+        android:name="com.shinobicontrols.messageme.HeadlessSmsSendService"
+        android:exported="true"
+        android:permission="android.permission.SEND_RESPOND_VIA_MESSAGE" >
+        <intent-filter>
+            <action android:name="android.intent.action.RESPOND_VIA_MESSAGE" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:scheme="sms" />
+            <data android:scheme="smsto" />
+            <data android:scheme="mms" />
+            <data android:scheme="mmsto" />
+        </intent-filter>
+    </service>
+
+The important parts of this are detailed below:
+
+- The service should be exported: `android:exported="true"`
+- The service requires the `SEND_RESPOND_VIA_MESSAGE` permission
+- It should respond to the `RESPOND_VIA_MESSAGE` intent, for all the different
+different schema.
 
 
 ### Setting the default SMS messaging app
+
+Once you've implemented all four of the above requirements then Android will be
+satisfied that your app is suitable to be used as the default SMS app for the
+system. There are a couple of options available to you to set this. The first
+is using the Android settings app:
+
+![Choose the more section](img/sms_settings_default_app_1.png)
+![Default SMS app](sms_settings_default_app_2.png)
+![2 Options](sms_settings_default_app_3.png)
+
+
 
 ### Conclusion
