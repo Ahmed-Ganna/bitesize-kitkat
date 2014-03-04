@@ -334,5 +334,30 @@ is using the Android settings app:
 ![2 Options](sms_settings_default_app_3.png)
 
 
+#### In-App Default App Override
+
+
 
 ### Conclusion
+
+It's really cool that with KitKat, Android developers can now create an app to
+replace the default SMS app in a supported manner. It's definitely worth
+remembering that following this route might be a bit of overkill - if all you
+want to do is receive notifications when SMS messages arrive, and have the
+ability to construct an SMS which the default app would send, then you can use
+existing techniques. Building a replacement SMS app shouldn't be taken lightly
+- users expect a lot from their messaging apps, and won't take too kindly to
+messages being lost or delayed.
+
+I encourage you to take a look at the sample project and play around with it
+yourself. There's some really powerful functionality provided here, just
+remember to use it wisely :)
+
+The code is available on github at
+[github.com/ShinobiControls/Xamarin-cross-platform-charting](https://github.com/ShinobiControls/Xamarin-cross-platform-charting)
+- feel free to fork it and send me pull requests. If you have any questions or
+comments either pop them in below, or grab me on twitter -
+[@iwantmyrealname](https://twitter.com/iwantmyrealname).
+
+sam
+
