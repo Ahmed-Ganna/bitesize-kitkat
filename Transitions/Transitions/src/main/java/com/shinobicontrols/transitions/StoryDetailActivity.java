@@ -22,17 +22,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
-import android.transition.ChangeBounds;
-import android.transition.Fade;
 import android.transition.Scene;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
-import android.transition.TransitionSet;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
-import android.view.animation.BounceInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -63,6 +59,11 @@ public class StoryDetailActivity extends FragmentActivity {
      */
     private StoryContent.StoryItem mItem;
 
+    /**
+     * The transition manager, inflated from XML
+     */
+    private TransitionManager mTransitionManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,10 +87,15 @@ public class StoryDetailActivity extends FragmentActivity {
         sceneList = new ArrayList<Scene>();
         LayoutInflater layoutInflater = getLayoutInflater();
         for(int layout : sceneLayouts) {
-            final ViewGroup sceneViewGroup = (ViewGroup)layoutInflater.inflate(layout, container, false);
-            addContentToViewGroup(sceneViewGroup);
-            sceneList.add(new Scene(container, sceneViewGroup));
+            //final ViewGroup sceneViewGroup = (ViewGroup)layoutInflater.inflate(layout, container, false);
+            //addContentToViewGroup(sceneViewGroup);
+            //sceneList.add(new Scene(container, sceneViewGroup));
+            sceneList.add(Scene.getSceneForLayout(container, layout, this));
         }
+
+        // Build the transition manager
+        TransitionInflater transitionInflater = TransitionInflater.from(this);
+        mTransitionManager = transitionInflater.inflateTransitionManager(R.transition.story_transition_manager, container);
 
 
         // Show the Up button in the action bar.
@@ -106,7 +112,7 @@ public class StoryDetailActivity extends FragmentActivity {
                 public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                     // If there's a scene for this tab index, then transition to it
                     if(tab.getPosition() <= sceneList.size()) {
-                        performTransitionToScene(sceneList.get(tab.getPosition()), 3000);
+                        performTransitionToScene(sceneList.get(tab.getPosition()));
                     }
                 }
 
@@ -120,10 +126,8 @@ public class StoryDetailActivity extends FragmentActivity {
                     // Can ignore this event
                 }
 
-                private void performTransitionToScene(Scene scene, long duration) {
-                    TransitionInflater inflater = TransitionInflater.from(StoryDetailActivity.this);
-                    Transition transition = inflater.inflateTransition(R.transition.bouncey_auto_transition);
-                    TransitionManager.go(scene, transition);
+                private void performTransitionToScene(Scene scene) {
+                    mTransitionManager.transitionTo(scene);
                 }
             };
 
