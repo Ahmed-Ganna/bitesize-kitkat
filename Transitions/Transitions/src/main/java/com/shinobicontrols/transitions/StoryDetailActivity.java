@@ -30,6 +30,7 @@ import android.transition.TransitionSet;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.view.animation.BounceInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -103,7 +104,7 @@ public class StoryDetailActivity extends FragmentActivity {
                 public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                     // If there's a scene for this tab index, then transition to it
                     if(tab.getPosition() <= sceneList.size()) {
-                        performTransitionToScene(sceneList.get(tab.getPosition()));
+                        performTransitionToScene(sceneList.get(tab.getPosition()), 3000);
                     }
                 }
 
@@ -117,10 +118,14 @@ public class StoryDetailActivity extends FragmentActivity {
                     // Can ignore this event
                 }
 
-                private void performTransitionToScene(Scene scene) {
+                private void performTransitionToScene(Scene scene, long duration) {
                     Fade fadeOut = new Fade(Fade.OUT);
+                    fadeOut.setDuration(duration / 3);
                     ChangeBounds changeBounds = new ChangeBounds();
+                    changeBounds.setDuration(duration / 3);
+                    changeBounds.setInterpolator(new BounceInterpolator());
                     Fade fadeIn = new Fade(Fade.IN);
+                    fadeIn.setDuration(duration / 3);
                     TransitionSet transitionSet = new TransitionSet();
                     transitionSet.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
                     transitionSet.addTransition(fadeOut)
