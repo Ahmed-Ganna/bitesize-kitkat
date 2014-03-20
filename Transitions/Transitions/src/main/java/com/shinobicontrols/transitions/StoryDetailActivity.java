@@ -25,6 +25,8 @@ import android.support.v4.app.NavUtils;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
 import android.transition.Scene;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.view.LayoutInflater;
@@ -119,19 +121,9 @@ public class StoryDetailActivity extends FragmentActivity {
                 }
 
                 private void performTransitionToScene(Scene scene, long duration) {
-                    Fade fadeOut = new Fade(Fade.OUT);
-                    fadeOut.setDuration(duration / 3);
-                    ChangeBounds changeBounds = new ChangeBounds();
-                    changeBounds.setDuration(duration / 3);
-                    changeBounds.setInterpolator(new BounceInterpolator());
-                    Fade fadeIn = new Fade(Fade.IN);
-                    fadeIn.setDuration(duration / 3);
-                    TransitionSet transitionSet = new TransitionSet();
-                    transitionSet.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
-                    transitionSet.addTransition(fadeOut)
-                            .addTransition(changeBounds)
-                            .addTransition(fadeIn);
-                    TransitionManager.go(scene, transitionSet);
+                    TransitionInflater inflater = TransitionInflater.from(StoryDetailActivity.this);
+                    Transition transition = inflater.inflateTransition(R.transition.bouncey_auto_transition);
+                    TransitionManager.go(scene, transition);
                 }
             };
 
