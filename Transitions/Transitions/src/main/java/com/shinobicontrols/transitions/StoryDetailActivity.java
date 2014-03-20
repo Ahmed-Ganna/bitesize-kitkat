@@ -22,8 +22,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NavUtils;
+import android.transition.ChangeBounds;
+import android.transition.Fade;
 import android.transition.Scene;
 import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
@@ -100,7 +103,7 @@ public class StoryDetailActivity extends FragmentActivity {
                 public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                     // If there's a scene for this tab index, then transition to it
                     if(tab.getPosition() <= sceneList.size()) {
-                        TransitionManager.go(sceneList.get(tab.getPosition()));
+                        performTransitionToScene(sceneList.get(tab.getPosition()));
                     }
                 }
 
@@ -112,6 +115,18 @@ public class StoryDetailActivity extends FragmentActivity {
                 @Override
                 public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
                     // Can ignore this event
+                }
+
+                private void performTransitionToScene(Scene scene) {
+                    Fade fadeOut = new Fade(Fade.OUT);
+                    ChangeBounds changeBounds = new ChangeBounds();
+                    Fade fadeIn = new Fade(Fade.IN);
+                    TransitionSet transitionSet = new TransitionSet();
+                    transitionSet.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+                    transitionSet.addTransition(fadeOut)
+                            .addTransition(changeBounds)
+                            .addTransition(fadeIn);
+                    TransitionManager.go(scene, transitionSet);
                 }
             };
 
