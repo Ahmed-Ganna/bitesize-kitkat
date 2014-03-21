@@ -224,6 +224,80 @@ PICTURE OF CONTENT LOADED
 
 ### Custom transitions with TransitionSets
 
+Currently, the transition is entirely automatic - we haven't specified anything
+about how the transition should animate, which is obviously something we would
+like to have control over.
+
+To start out we'll re-create the `AutoTransition` so that you can see what it
+is constructed from:
+
+    private void performTransitionToScene(Scene scene) {
+        Fade fadeOut = new Fade(Fade.OUT);
+        ChangeBounds changeBounds = new ChangeBounds();
+        Fade fadeIn = new Fade(Fade.IN);
+        
+        TransitionSet transitionSet = new TransitionSet();
+        transitionSet.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+        transitionSet.addTransition(fadeOut)
+                .addTransition(changeBounds)
+                .addTransition(fadeIn);
+        
+        TransitionManager.go(scene, transitionSet);
+    }
+
+This method will transition from the current scene to the new one, using a
+`TransitionSet` which comprises fade-out, bounds change and fade-in
+transitions. A transition set is an ordered collection of transitions, and you
+can set whether the transitions should occur simultaneously or sequentially
+using the `setOrdering()` method. In order to recreate the `AutoTransition`, we
+set that the ordering should be sequential.
+
+The `go()` static method on `TransitionManager` can take two arguments - where,
+in addition to the `Scene`, a `Transition` can be supplied as well.
+
+In order to actually use this new method replace:
+
+    TransitionManager.go(sceneList.get(tab.getPosition()));
+
+with:
+
+    performTransitionToScene(sceneList.get(tab.getPosition()));
+
+
+If you run the app up now, then you shouldn't notice any difference - we've
+just recreated the existing automatic transition ourselves. The advantage of
+doing this is that you now have a lot more control over the transition itself.
+For example, we can update the transition method to set a duration on the
+individual segments of the transition:
+
+    private void performTransitionToScene(Scene scene) {
+        Fade fadeOut = new Fade(Fade.OUT);
+        ChangeBounds changeBounds = new ChangeBounds();
+        Fade fadeIn = new Fade(Fade.IN);
+
+        fadeOut.setDuration(1000);
+        changeBounds.setDuration(1000);
+        fadeIn.setDuration(1000);
+
+        changeBounds.setInterpolator(new BounceInterpolator());
+
+        TransitionSet transitionSet = new TransitionSet();
+        transitionSet.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
+        transitionSet.addTransition(fadeOut)
+                     .addTransition(changeBounds)
+                     .addTransition(fadeIn);
+
+        TransitionManager.go(scene, transitionSet);
+    }
+
+The code snippet also introduces the concept of an `Interpolator`. This is an
+object which maps the temporal dimension of the transition into the spatial
+domain. There are a selection of different interpolators provided as part of
+the framework, including `AccelerateDecelerateInterpolator` and
+`AnticipateOvershootInterpolator`; here we're using a `BounceInterpolator`:
+
+IMAGE DEMONSTRATING THE BOUNCE INTERPOLATOR
+
 
 ### Using XML resources for transitions
 
