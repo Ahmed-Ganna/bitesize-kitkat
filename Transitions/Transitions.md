@@ -418,3 +418,23 @@ PICTURE DEMOING THE 2 TRANSITIONS
 
 
 ### Conclusion
+
+Animation in Android has come on a lot in recent releases, and the introduction
+of the android.transition framework takes it one stage further. The transitions
+provide a simple entry-point to performing complex animations, in a declarative
+manner. This enables the use of XML resources, which can greatly simplify the
+code and improves separation of concerns.
+
+Although this article covered all the major parts of the new framework, there
+is still a lot to play with - it's worth taking a look at the docs and seeing
+what user-experience-enhancing animations you can come up with.
+
+As previously mentioned, all the code is available in the github repo at
+[github.com/ShinobiControls/bitesize-kitkat](https://github.com/ShinobiControls/bitesize-kitkat).
+If you have any problems or questions then do create a pull-request, pop
+something in below, or hit my up on twitter -
+[@iwantmyrealname](https://twitter.com/iwantmyrealname).
+
+
+sam
+
