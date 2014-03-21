@@ -77,7 +77,7 @@ public class StoryDetailActivity extends FragmentActivity {
         }
 
         // Get hold of some relevant content
-        ViewGroup container = (ViewGroup)findViewById(R.id.container);
+        final ViewGroup container = (ViewGroup)findViewById(R.id.container);
 
         // What are the layouts we should be able to transition between
         List<Integer> sceneLayouts = Arrays.asList(R.layout.content_scene_00,
@@ -85,12 +85,18 @@ public class StoryDetailActivity extends FragmentActivity {
                                                    R.layout.content_scene_02);
         // Create the scenes
         sceneList = new ArrayList<Scene>();
-        LayoutInflater layoutInflater = getLayoutInflater();
         for(int layout : sceneLayouts) {
-            //final ViewGroup sceneViewGroup = (ViewGroup)layoutInflater.inflate(layout, container, false);
-            //addContentToViewGroup(sceneViewGroup);
-            //sceneList.add(new Scene(container, sceneViewGroup));
-            sceneList.add(Scene.getSceneForLayout(container, layout, this));
+            // Create the scene
+            Scene scene = Scene.getSceneForLayout(container, layout, this);
+            // Just before the transition starts, ensure that the content has been loaded
+            scene.setEnterAction(new Runnable() {
+                                     @Override
+                                     public void run() {
+                                         addContentToViewGroup(container);
+                                     }
+                                 });
+            // Save the scene into
+            sceneList.add(scene);
         }
 
         // Build the transition manager
