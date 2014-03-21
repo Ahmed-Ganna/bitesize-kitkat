@@ -301,5 +301,120 @@ IMAGE DEMONSTRATING THE BOUNCE INTERPOLATOR
 
 ### Using XML resources for transitions
 
+As with many other aspects of android, it's possible to specify both
+`Transition` and `TransitionManager` objects as XML resources. First we'll look
+at recreating the custom bounce transition we created above as an XML resource.
+
+#### Creating a Transition XML Resource
+
+Create a new XML resource in the __transition__ directory, and call it
+__bouncy_auto_transition.xml__. The root element should be `transitionSet`:
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+        android:transitionOrdering="sequential" >
+        <fade
+            android:fadingMode="fade_out"
+            android:duration="1000" />
+        <changeBounds
+            android:interpolator="@android:interpolator/bounce"
+            android:duration="1000" />
+        <fade
+            android:fadingMode="fade_in"
+            android:duration="1000" />
+    </transitionSet>
+
+You can see here that in actual fact, the XML schema is really rather simple to
+understand - the `transitionOrdering` is specified as an attribute on the
+`transitionSet` element. Then, each of the transitions are detailed with
+`fadingMode`, `duration` and `interpolator` attributes.
+
+To use this new transition, update the `performTransitionToScene()` method:
+
+    TransitionInflater inflater = TransitionInflater.from(StoryDetailActivity.this);
+    Transition transition = inflater.inflateTransition(R.transition.bouncey_auto_transition);
+    TransitionManager.go(scene, transition);
+
+Here we create a `TransitionInflater` (using `StoryDetailActivity.this` because
+we need the context and we're in an inner class), and use it to inflate a
+`Transition` object. Then we use the same static `go()` method on the
+`TransitionManager` that we were using before.
+
+If you run the app up then you won't notice any difference at all - you've just
+replaced the java code with the XML resource file.
+
+
+#### Creating a TransitionManager XML Resource
+
+The real power of the XML resources can be seen when we create a
+`TransitionManager`. Create a new XML resource in the __transition__ directory,
+call it __story_transition_manager.xml__ and ensure that the root element is
+`transitionManager`.
+
+The syntax is again pretty simple - a transition manager is comprised of a set
+of transitions - each of which specifies which scene is being transitioned
+from, which scene is being transitioned to, and which transition object should
+be used:
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <transitionManager xmlns:android="http://schemas.android.com/apk/res/android">
+        <transition android:fromScene="@layout/content_scene_00"
+            android:toScene="@layout/content_scene_01"
+            android:transition="@transition/simultaneous_bounce_transition" />
+        <transition android:fromScene="@layout/content_scene_00"
+            android:toScene="@layout/content_scene_02"
+            android:transition="@transition/bouncy_auto_transition" />
+        ...
+    </transitionManager>
+
+Here we've introduced a second transition type -
+__simultaneous_bounce_transition__:
+
+    <?xml version="1.0" encoding="utf-8"?>
+    <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+        android:transitionOrdering="together">
+        <fade
+            android:fadingMode="fade_out"
+            android:duration="500" />
+        <changeBounds
+            android:interpolator="@android:interpolator/bounce"
+            android:startDelay="250"
+            android:duration="1500" />
+        <fade
+            android:fadingMode="fade_in"
+            android:startDelay="750"
+            android:duration="1000" />
+    </transitionSet>
+
+You don't necessarily have to enumerate all the different scene-scene pairs
+within the transition manager - if an appropriate transition cannot be found
+then the default (`AutoTransition`) will be used.
+
+In order to use the new transition manager, we add a member variable to the
+activity to store a reference to it:
+
+    /**
+     * The transition manager, inflated from XML
+     */
+    private TransitionManager mTransitionManager;
+
+Then in `onCreate()` we create an inflater and create the transition manager:
+    
+    // Build the transition manager
+    TransitionInflater transitionInflater = TransitionInflater.from(this);
+    mTransitionManager = transitionInflater.inflateTransitionManager(R.transition.story_transition_manager, container);
+
+And then the `performTransitionToScene()` method simply becomes:
+
+    private void performTransitionToScene(Scene scene) {
+        mTransitionManager.transitionTo(scene);
+    }
+
+If you run the app up now then you'll see that some of the transitions will
+behave according to the original bouncy transition, and some the new
+simultaneous bounce transition:
+
+PICTURE DEMOING THE 2 TRANSITIONS
+
 
 ### Conclusion
