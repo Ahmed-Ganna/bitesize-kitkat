@@ -4,7 +4,7 @@
 
     <transition android:fromScene="@layout/content_scene_00"
         android:toScene="@layout/content_scene_01"
-        android:transition="@transition/bouncy_auto_transition" />
+        android:transition="@transition/simultaneous_bounce_transition" />
     <transition android:fromScene="@layout/content_scene_00"
         android:toScene="@layout/content_scene_02"
         android:transition="@transition/bouncy_auto_transition" />
@@ -14,13 +14,13 @@
         android:transition="@transition/bouncy_auto_transition" />
     <transition android:fromScene="@layout/content_scene_01"
         android:toScene="@layout/content_scene_02"
-        android:transition="@transition/bouncy_auto_transition" />
+        android:transition="@transition/simultaneous_bounce_transition" />
 
     <transition android:fromScene="@layout/content_scene_02"
         android:toScene="@layout/content_scene_00"
         android:transition="@transition/bouncy_auto_transition" />
     <transition android:fromScene="@layout/content_scene_02"
         android:toScene="@layout/content_scene_01"
-        android:transition="@transition/bouncy_auto_transition" />
+        android:transition="@transition/simultaneous_bounce_transition" />
 
 </transitionManager>
