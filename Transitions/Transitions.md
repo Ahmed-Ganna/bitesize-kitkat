@@ -128,7 +128,7 @@ previously.
 If you run the app up in this state, and flip between the tabs then you'll see
 that moving between tabs involves the content automatically animating:
 
-PICTURE OF SIMPLE CASE HERE
+![Transitions without content](img/transition_no_content.gif)
 
 You haven't specified anything about how the transitions should animate yet,
 and in this case then the `TransitionManager` will use the default
@@ -219,7 +219,7 @@ Adding this to the loop in which we create the `Scene` objects will ensure that
 the content is loaded before the transition takes place, and if you tun the app
 up now you'll see that the content is fully loaded:
 
-PICTURE OF CONTENT LOADED
+![Simple transitions](img/simple_transitions.gif)
 
 
 ### Custom transitions with TransitionSets
@@ -296,7 +296,7 @@ domain. There are a selection of different interpolators provided as part of
 the framework, including `AccelerateDecelerateInterpolator` and
 `AnticipateOvershootInterpolator`; here we're using a `BounceInterpolator`:
 
-IMAGE DEMONSTRATING THE BOUNCE INTERPOLATOR
+![Bounce transition](img/transition_with_bounce.gif)
 
 
 ### Using XML resources for transitions
@@ -414,7 +414,7 @@ If you run the app up now then you'll see that some of the transitions will
 behave according to the original bouncy transition, and some the new
 simultaneous bounce transition:
 
-PICTURE DEMOING THE 2 TRANSITIONS
+![Both types of transition](img/transitions_2_types.gif)
 
 
 ### Conclusion
