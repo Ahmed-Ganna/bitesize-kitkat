@@ -13,8 +13,8 @@ look at the constituent parts of the transitions framework, and learn how to
 build a sample app which uses custom transitions.
 
 The code is available in github at
-[github.com/ShinobiControls/bitesize-kitkat](https://github.com/ShinobiControls/bitesize-kitkat)
-- feel free to grab it and give it a try. It'd be great to see a pull request
+[github.com/ShinobiControls/bitesize-kitkat](https://github.com/ShinobiControls/bitesize-kitkat) -
+feel free to grab it and give it a try. It'd be great to see a pull request
 with any fixes if you find any issues. The code has been tested on Android
 Studio 0.5.1. Versions < 0.5 don't have support for the XML transition
 resources.
@@ -34,53 +34,53 @@ resources which we'll use for the two scenes. The first is a simple
 `LinearLayout` which contains an image, a title label and a larger content text
 view:
 
-  <LinearLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:orientation="vertical"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:id="@+id/linearLayout" >
-      <ImageView
-          android:layout_width="300dp"
-          android:layout_height="300dp"
-          android:id="@+id/story_image"
-          android:layout_gravity="center_horizontal"
-          android:src="@drawable/sample1"/>
-      <TextView
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:textAppearance="?android:attr/textAppearanceLarge"
-          android:text="Title Text"
-          android:id="@+id/story_title" />
-      <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:id="@+id/story_content"
-          android:text="Content Text" />
-  </LinearLayout> 
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout" >
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:id="@+id/story_image"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/sample1"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Title Text"
+            android:id="@+id/story_title" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/story_content"
+            android:text="Content Text" />
+    </LinearLayout>
 
 And the second has just an image and the same text view for content:
 
-  <LinearLayout
-      xmlns:android="http://schemas.android.com/apk/res/android"
-      android:orientation="vertical"
-      android:layout_width="fill_parent"
-      android:layout_height="wrap_content"
-      android:id="@+id/linearLayout" >
-      <ImageView
-          android:layout_width="fill_parent"
-          android:layout_height="150dp"
-          android:scaleType="centerCrop"
-          android:id="@+id/story_image"
-          android:layout_gravity="center_horizontal"
-          android:src="@drawable/sample1"/>
-      <TextView
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:id="@+id/story_content"
-          android:text="Content Text"
-          android:textAlignment="center" />
-  </LinearLayout>
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout" >
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="150dp"
+            android:scaleType="centerCrop"
+            android:id="@+id/story_image"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/sample1"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/story_content"
+            android:text="Content Text"
+            android:textAlignment="center" />
+    </LinearLayout>
 
 Notice that the ids match between the two layouts. The transition framework
 will automatically animate views which are present in both scenes, and these
@@ -235,13 +235,13 @@ is constructed from:
         Fade fadeOut = new Fade(Fade.OUT);
         ChangeBounds changeBounds = new ChangeBounds();
         Fade fadeIn = new Fade(Fade.IN);
-        
+
         TransitionSet transitionSet = new TransitionSet();
         transitionSet.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
         transitionSet.addTransition(fadeOut)
                 .addTransition(changeBounds)
                 .addTransition(fadeIn);
-        
+
         TransitionManager.go(scene, transitionSet);
     }
 
@@ -399,7 +399,7 @@ activity to store a reference to it:
     private TransitionManager mTransitionManager;
 
 Then in `onCreate()` we create an inflater and create the transition manager:
-    
+
     // Build the transition manager
     TransitionInflater transitionInflater = TransitionInflater.from(this);
     mTransitionManager = transitionInflater.inflateTransitionManager(R.transition.story_transition_manager, container);
@@ -437,4 +437,3 @@ something in below, or hit my up on twitter -
 
 
 sam
-
